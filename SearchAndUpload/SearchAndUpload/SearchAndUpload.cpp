@@ -1,6 +1,6 @@
 ﻿// SearchAndUpload.cpp : 此文件包含 "main" 函数。程序执行将在此处开始并结束。
 //
-//命令行工具实现搜索Windows系统全磁盘指定多钟后缀文件（比如docx、PDF、PPT等），通过打包压缩加密上传文件；
+//命令行工具实现搜索Windows系统,全磁盘如果有新产生的指定多钟后缀文件（比如docx、PDF、PPT等），立即通过打包压缩加密上传文件；
 //可以上传第三方网盘（可以考虑dropbox网盘，需要挂VPn,百度网盘等），上传成功后，支持rar解压加密文件；
 
 //支持搜索多国语言文件
@@ -17,10 +17,17 @@
 #include <string.h>
 #include <windows.h>
 #include <stack>
+#include <thread>
+#include <mutex>
+
 
 using namespace std;
 
 #pragma warning(disable : 4996)
+
+mutex my_mutex;
+int counts = 0;  //count用来统计文件数
+
 
 std::vector<std::string> get_all_files(std::string path, std::string suffix) {
     std::vector<std::string> files;
@@ -29,14 +36,21 @@ std::vector<std::string> get_all_files(std::string path, std::string suffix) {
 
     std::vector<std::string> paths;
     paths.push_back(path);
-
-
-
     return files;
 }
 
-int counts = 0;  //count用来统计文件数
 
+
+void counter(int id, int numIter) {
+    for (int i = 0; i < numIter; ++i) {
+        cout << "counter id:" << id << endl;
+        cout << "iteraion:" << i << endl;
+		my_mutex.lock();
+		counts += 1;
+		cout << "counts:" << counts << endl;
+		my_mutex.unlock();
+    }
+}
 
 
 int file_type(char* patName, char* relName) {
@@ -45,10 +59,9 @@ int file_type(char* patName, char* relName) {
     pat = patName;
     allname = relName;
     int index = allname.find(pat, allname.length() - pat.length());
-    if (index != allname.npos) {
-        //cout << "ok" << endl;
+    if (index != allname.npos)
         return 1;
-    } else
+    else
         return 0;
 
 }
@@ -88,15 +101,23 @@ void listFiles(char* path, char* name, bool children = false) {
     _findclose(handle);    // 关闭搜索句柄
 }
 
+
+
+
 int main() {
     std::cout << "Hello World!\n";
 
-    //char dir[100];
     string dir = "W:/*.txt";
-    listFiles((char*)"D:", (char*)".cpp", true);
+    //listFiles((char*)"D:", (char*)".cpp", true);
+    thread t1(counter, 1, 6);
+    thread t2(counter, 2, 4);
 
-    //Search((char*)"W:/LeetCode", (char*)"*.*", true);
-
+    //如果没有join，main函数加载两个线程后立即结束，导致线程也中止
+    //可以确保主线程一直运行，直到两个线程都执行完毕
+    t1.join();
+    t2.join();
+	
+	
 }
 
 // 运行程序: Ctrl + F5 或调试 >“开始执行(不调试)”菜单
