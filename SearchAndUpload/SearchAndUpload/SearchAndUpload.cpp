@@ -9,6 +9,8 @@
 #include "SearchAndUpload.h"
 #include "usn_manager.h"
 #include "global.h"
+#include "zip_manager.h"
+
 
 //vector <string> change_files_path;
 typedef struct {
@@ -148,15 +150,21 @@ int main() {
     }
 
     usn_manager usn;
-
+    DWORD startTimeStamp = GetTickCount();
     while (true) {
-        if (change_files_path.size()) {
+        DWORD endTimeStamp = GetTickCount();
+        //50秒循环清理一次
+        if (change_files_path.size() && (endTimeStamp - startTimeStamp > 50000)) {
             for (int i = 0 ; i < change_files_path.size(); i++)
                 cout << change_files_path.at(i) << endl;
-
+            zip_manager zip_packer;
+            zip_packer.start((char*)"W:\\test_add_file.zip", (char*) "CBR", change_files_path);
+            startTimeStamp = GetTickCount();
             change_files_path.erase(change_files_path.begin(), change_files_path.end());
-        } else
+        } else {
+            cout << " try to scan_usn" << endl;
             usn.start(exits_drives);
+        }
     }
 
 

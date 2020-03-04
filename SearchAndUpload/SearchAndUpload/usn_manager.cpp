@@ -477,4 +477,5 @@ usn_manager::usn_manager() {
 }
 
 usn_manager::~usn_manager() {
+	cout << "Object is being deleted" << endl;
 }
