@@ -18,10 +18,16 @@
     <ClCompile Include="SearchAndUpload.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="usn_manager.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SearchAndUpload.h">
       <Filter>源文件</Filter>
+    </ClInclude>
+    <ClInclude Include="usn_manager.h">
+      <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
