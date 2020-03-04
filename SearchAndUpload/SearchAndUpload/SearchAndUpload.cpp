@@ -10,19 +10,14 @@
 #include <string>
 #include <vector>
 #include <direct.h>
-#include <iostream>
 #include <io.h>
 #include <fstream>
 #include <cstring>
 #include <string.h>
-#include <windows.h>
 #include <stack>
 #include <thread>
 #include <mutex>
-#include <iostream>
 #include <Windows.h>
-#include <fstream>
-#include <string>
 #include <time.h>
 
 #include "usn_manager.h"
@@ -32,18 +27,19 @@ using namespace std;
 #pragma warning(disable : 4996)
 
 mutex my_mutex;
-int counts = 0;  //count用来统计文件数
-using namespace std;
-char* volName = (char*)"w:\\";
-HANDLE hVol = INVALID_HANDLE_VALUE;
-USN_JOURNAL_DATA UsnInfo; // 储存USN日志的基本信息
-#define BUF_LEN 4096
+int thread_test = 0;  //count用来统计文件数
 
-ofstream fout("E:\\log.txt");
-long counter = 0;
+//char* volName = (char*)"w:\\";
+//HANDLE hVol = INVALID_HANDLE_VALUE;
+//USN_JOURNAL_DATA UsnInfo; // 储存USN日志的基本信息
+//#define BUF_LEN 4096
 
+//ofstream fout("E:\\log.txt");
+long int counts = 0;
 
-
+vector <string> exits_drives;
+vector <string> change_files_path;
+vector<vector<DWORDLONG>> drives_scan_result;
 
 typedef struct {
     DWORDLONG journal_id;
@@ -80,8 +76,8 @@ void counters(int id, int numIter) {
         cout << "counter id:" << id << endl;
         cout << "iteraion:" << i << endl;
         my_mutex.lock();
-        counts += 1;
-        cout << "counts:" << counts << endl;
+        thread_test += 1;
+        cout << "counts:" << thread_test << endl;
         my_mutex.unlock();
     }
 }
@@ -142,247 +138,45 @@ BOOL get_handle(char* volume_name, HANDLE&  volume_handle) {
 
 }
 
+void scan_all_drives() {
+
+    UINT nType;
+
+    for (char i = 'A'; i <= 'Z'; i++) {
+        char rootPath[10] = { 0 }, driveType[21] = { 0 };
+        sprintf(rootPath, "%c:\\\\", i);
+        nType = GetDriveType(rootPath);
+        if (nType != DRIVE_NO_ROOT_DIR) {                // DRIVE_NO_ROOT_DIR: 路径无效
+            cout << "detected " << rootPath << endl;
+            exits_drives.push_back(rootPath);
+        }
+    }
+}
+
 
 int main() {
     std::cout << "Hello World!\n";
 
     string dir = "W:/*.txt";
     //listFiles((char*)"D:", (char*)".cpp", true);
-    thread t1(counters, 1, 6);
-    thread t2(counters, 2, 4);
+    //thread t1(counters, 1, 6);
+    //thread t2(counters, 2, 4);
 
-    //如果没有join，main函数加载两个线程后立即结束，导致线程也中止
-    //可以确保主线程一直运行，直到两个线程都执行完毕
-    t1.join();
-    t2.join();
+    ////如果没有join，main函数加载两个线程后立即结束，导致线程也中止
+    ////可以确保主线程一直运行，直到两个线程都执行完毕
+    //t1.join();
+    //t2.join();
 
-	usn_manager usn;
-	usn.start();
+    //获取所有盘符
+    scan_all_drives();
 
+    for (int i = 0; i < exits_drives.size(); i++) {
+        //
+        cout << exits_drives.at(i) << endl;
+    }
 
-
-
-    //if (!get_handle(volName, hVol)) {
-    //  cout << "error handle" << endl;
-    //}
-
-
-
-    //BOOL status;
-    //BOOL isNTFS = false;
-    //BOOL getHandleSuccess = false;
-    //BOOL initUsnJournalSuccess = false;
-
-    //判断驱动盘是否NTFS格式
-    //cout << "step 01. 判断驱动盘是否NTFS格式\n";
-    //char sysNameBuf[MAX_PATH] = { 0 };
-    //status = GetVolumeInformationA(volName,
-    //                               NULL,
-    //                               0,
-    //                               NULL,
-    //                               NULL,
-    //                               NULL,
-    //                               sysNameBuf, // 驱动盘的系统名
-    //                               MAX_PATH);
-    //cout << status << endl;
-    //if (0 != status) {
-    //    cout << "文件系统名:" << sysNameBuf << "\n";
-    //     比较字符串
-    //    if (0 == strcmp(sysNameBuf, "NTFS")) {
-    //        cout << "此驱动盘是NTFS格式！转向step-02.\n";
-    //        isNTFS = true;
-    //    } else
-    //        cout << "该驱动盘非NTFS格式\n";
-
-    //}
-
-    //if (isNTFS) {
-    //    step 02. 获取驱动盘句柄
-    //    cout << "step 02. 获取驱动盘句柄\n";
-    //    char fileName[MAX_PATH];
-    //    fileName[0] = '\0';
-    //    strcpy_s(fileName, "\\\\.\\");//传入的文件名
-    //    strcat_s(fileName, volName);
-    //    string fileNameStr = (string)fileName;
-    //    fileNameStr.erase(fileNameStr.find_last_of(":") + 1);
-    //    cout << "驱动盘地址:" << fileNameStr.data() << "\n";
-    //    hVol = CreateFile(fileNameStr.data(), GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, 0, NULL);
-    //    hVol = CreateFileA(fileNameStr.data(),//可打开或创建以下对象，并返回可访问的句柄：控制台，通信资源，目录（只读打开），磁盘驱动器，文件
-    //                       GENERIC_READ | GENERIC_WRITE,
-    //                       FILE_SHARE_READ | FILE_SHARE_WRITE,
-    //                       NULL,
-    //                       OPEN_EXISTING,
-    //                       FILE_ATTRIBUTE_READONLY,
-    //                       NULL);
-    //    cout << hVol << endl;
-
-    //    if (INVALID_HANDLE_VALUE != hVol) {
-    //        cout << "获取驱动盘句柄成功！转向step-03.\n";
-    //        getHandleSuccess = true;
-    //    } else
-    //        cout << "获取驱动盘句柄失败 —— handle:" << hVol << " error:" << GetLastError() << "\n";
-    //}
-
-    //if (getHandleSuccess) {
-    //    step 03. 初始化USN日志文件
-    //    cout << "step 03. 初始化USN日志文件\n";
-    //    DWORD br;
-    //    CREATE_USN_JOURNAL_DATA cujd;
-    //    cujd.MaximumSize = 0;
-    //    cujd.AllocationDelta = 0;
-    //    status = DeviceIoControl(hVol,
-    //                             FSCTL_CREATE_USN_JOURNAL,
-    //                             &cujd,
-    //                             sizeof(cujd),
-    //                             NULL,
-    //                             0,
-    //                             &br,
-    //                             NULL);
-
-    //    if (0 != status) {
-    //        cout << "初始化USN日志文件成功！转向step-04.\n";
-    //        initUsnJournalSuccess = true;
-    //    } else
-    //        cout << "初始化USN日志文件失败 —— status:" << status << " error:" << GetLastError() << "\n";
-    //}
-    //JOURNAL_INFO journal_info;
-    //if (initUsnJournalSuccess) {
-
-    //    BOOL getBasicInfoSuccess = false;
-
-
-    //    step 04. 获取USN日志基本信息(用于后续操作)
-    //    cout << "step 04. 获取USN日志基本信息(用于后续操作)\n";
-    //    DWORD br;
-    //    status = DeviceIoControl(hVol,
-    //                             FSCTL_QUERY_USN_JOURNAL,
-    //                             NULL,
-    //                             0,
-    //                             &UsnInfo,
-    //                             sizeof(UsnInfo),
-    //                             &br,
-    //                             NULL);
-
-    //    DWORD bytes_returned;
-    //    USN_JOURNAL_DATA ujd;
-
-    //    if (DeviceIoControl(hVol, FSCTL_QUERY_USN_JOURNAL, NULL, 0, &ujd, sizeof(ujd), &bytes_returned, NULL)) {
-    //        journal_info.journal_id = ujd.UsnJournalID;
-    //        journal_info.high_usn = ujd.NextUsn;
-    //        cout << "  safasf 获取USN日志基本信息成功！转向step-05.\n";
-    //    } else {
-    //        CloseHandle(hVol);
-    //        return false;
-    //    }
-
-
-    //    if (0 != status) {
-    //        cout << "获取USN日志基本信息成功！转向step-05.\n";
-    //        getBasicInfoSuccess = true;
-    //    } else
-    //        cout << "获取USN日志基本信息失败 —— status:" << status << " error:" << GetLastError() << "\n";
-    //    if (getBasicInfoSuccess) {
-    //        cout << "UsnJournalID: " << UsnInfo.UsnJournalID << "\n";
-    //        cout << "lowUsn: " << UsnInfo.FirstUsn << "\n";
-    //        cout << "highUsn: " << UsnInfo.NextUsn << "\n";
-
-    //        step 05. 枚举USN日志文件中的所有记录
-    //        cout << "step 05. 枚举USN日志文件中的所有记录\n";
-    //        MFT_ENUM_DATA_V0 med;
-    //        med.StartFileReferenceNumber = 0;
-    //        med.LowUsn = 0;
-    //        med.HighUsn = journal_info.high_usn;
-
-    //        CHAR buffer[BUF_LEN]; //储存记录的缓冲,尽量足够地大 buf_len = 4096
-    //        DWORD usnDataSize;
-    //        PUSN_RECORD UsnRecord;
-    //        long clock_start = clock();
-
-    //        USN_JOURNAL_DATA ujd;
-
-    //        while (0 != DeviceIoControl(hVol,
-    //                                    FSCTL_ENUM_USN_DATA,
-    //                                    &med,
-    //                                    sizeof(med),
-    //                                    buffer,
-    //                                    BUF_LEN,
-    //                                    &usnDataSize,
-    //                                    NULL)) {
-    //            DWORD dwRetBytes = usnDataSize - sizeof(USN);
-
-    //            UsnRecord = (PUSN_RECORD)(((PCHAR)buffer) + sizeof(USN));// 找到第一个USN记录
-    //            while (dwRetBytes > 0) {
-    //                const int strLen = UsnRecord->FileNameLength;
-    //                char fileName[MAX_PATH] = { 0 };
-    //                char filePath[MAX_PATH] = {0};
-    //                WideCharToMultiByte(CP_OEMCP, NULL, UsnRecord->FileName, strLen / 2, fileName, strLen, NULL, FALSE);
-
-    //                cout << "FileName: " << fileName << "\n";
-    //                cout << "FileReferenceNumber: " << UsnRecord->FileReferenceNumber << "\n";
-    //                cout << "ParentFileReferenceNumber: " << UsnRecord->ParentFileReferenceNumber << "\n";
-    //                cout<< "FilePath: " << filePath << "\n\n";
-
-    //                fout << "FileName:" << fileName << endl;
-    //                fout << "FileReferenceNumber:" << UsnRecord->FileReferenceNumber << endl;
-    //                fout << "ParentFileReferenceNumber:" << UsnRecord->ParentFileReferenceNumber << endl;
-    //                fout << "FilePath:" << filePath << endl;
-    //                fout << endl;
-    //                counter++;
-
-    //                 获取下一个记录
-    //                DWORD recordLen = UsnRecord->RecordLength;
-    //                dwRetBytes -= recordLen;
-    //                UsnRecord = (PUSN_RECORD)(((PCHAR)UsnRecord) + recordLen);
-    //            }
-    //            med.StartFileReferenceNumber = *(USN*)&buffer;
-
-    //        }
-    //        cout << "共" << counter << "个文件\n";
-    //        long clock_end = clock();
-    //        cout << "花费" << clock_end - clock_start << "毫秒" << endl;
-    //        fout << "共" << counter << "个文件" << endl;
-    //        fout << flush;
-    //        fout.close();
-    //    }
-
-
-    //    step 06. 删除USN日志文件(当然也可以不删除)
-    //    cout << "step 06. 删除USN日志文件(当然也可以不删除)\n";
-    //    DELETE_USN_JOURNAL_DATA dujd;
-    //    dujd.UsnJournalID = UsnInfo.UsnJournalID;
-    //    dujd.DeleteFlags = USN_DELETE_FLAG_DELETE;
-
-    //    status = DeviceIoControl(hVol,
-    //                             FSCTL_DELETE_USN_JOURNAL,
-    //                             &dujd,
-    //                             sizeof(dujd),
-    //                             NULL,
-    //                             0,
-    //                             &br,
-    //                             NULL);
-
-    //    if (0 != status)
-    //        cout << "成功删除USN日志文件!\n";
-    //    else
-    //        cout << "删除USN日志文件失败 —— status:" << status << " error:" << GetLastError() << "\n";
-    //}
-    //if (getHandleSuccess)
-    //    CloseHandle(hVol);
-    ////释放资源
-
-
-
-
-    //usn_manager usn;
-    //usn.start();
-
-
-    //   char* volName = (char*)"w:\\";
-    //   // memset(volName, 0, sizeof(volName)/sizeof(char *));
-    //   HANDLE hVol = new HANDLE;
-    //USN_JOURNAL_DATA UsnInfo = {}; // 储存USN日志的基本信息
-
-    //   usn.watch_usn(volName, hVol, UsnInfo);
+    usn_manager usn;
+    usn.start(exits_drives);
 }
 
 // 运行程序: Ctrl + F5 或调试 >“开始执行(不调试)”菜单
@@ -395,3 +189,228 @@ int main() {
 //   4. 使用错误列表窗口查看错误
 //   5. 转到“项目”>“添加新项”以创建新的代码文件，或转到“项目”>“添加现有项”以将现有代码文件添加到项目
 //   6. 将来，若要再次打开此项目，请转到“文件”>“打开”>“项目”并选择 .sln 文件
+
+
+
+
+//if (!get_handle(volName, hVol)) {
+//  cout << "error handle" << endl;
+//}
+
+
+
+//BOOL status;
+//BOOL isNTFS = false;
+//BOOL getHandleSuccess = false;
+//BOOL initUsnJournalSuccess = false;
+
+//判断驱动盘是否NTFS格式
+//cout << "step 01. 判断驱动盘是否NTFS格式\n";
+//char sysNameBuf[MAX_PATH] = { 0 };
+//status = GetVolumeInformationA(volName,
+//                               NULL,
+//                               0,
+//                               NULL,
+//                               NULL,
+//                               NULL,
+//                               sysNameBuf, // 驱动盘的系统名
+//                               MAX_PATH);
+//cout << status << endl;
+//if (0 != status) {
+//    cout << "文件系统名:" << sysNameBuf << "\n";
+//     比较字符串
+//    if (0 == strcmp(sysNameBuf, "NTFS")) {
+//        cout << "此驱动盘是NTFS格式！转向step-02.\n";
+//        isNTFS = true;
+//    } else
+//        cout << "该驱动盘非NTFS格式\n";
+
+//}
+
+//if (isNTFS) {
+//    step 02. 获取驱动盘句柄
+//    cout << "step 02. 获取驱动盘句柄\n";
+//    char fileName[MAX_PATH];
+//    fileName[0] = '\0';
+//    strcpy_s(fileName, "\\\\.\\");//传入的文件名
+//    strcat_s(fileName, volName);
+//    string fileNameStr = (string)fileName;
+//    fileNameStr.erase(fileNameStr.find_last_of(":") + 1);
+//    cout << "驱动盘地址:" << fileNameStr.data() << "\n";
+//    hVol = CreateFile(fileNameStr.data(), GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, 0, NULL);
+//    hVol = CreateFileA(fileNameStr.data(),//可打开或创建以下对象，并返回可访问的句柄：控制台，通信资源，目录（只读打开），磁盘驱动器，文件
+//                       GENERIC_READ | GENERIC_WRITE,
+//                       FILE_SHARE_READ | FILE_SHARE_WRITE,
+//                       NULL,
+//                       OPEN_EXISTING,
+//                       FILE_ATTRIBUTE_READONLY,
+//                       NULL);
+//    cout << hVol << endl;
+
+//    if (INVALID_HANDLE_VALUE != hVol) {
+//        cout << "获取驱动盘句柄成功！转向step-03.\n";
+//        getHandleSuccess = true;
+//    } else
+//        cout << "获取驱动盘句柄失败 —— handle:" << hVol << " error:" << GetLastError() << "\n";
+//}
+
+//if (getHandleSuccess) {
+//    step 03. 初始化USN日志文件
+//    cout << "step 03. 初始化USN日志文件\n";
+//    DWORD br;
+//    CREATE_USN_JOURNAL_DATA cujd;
+//    cujd.MaximumSize = 0;
+//    cujd.AllocationDelta = 0;
+//    status = DeviceIoControl(hVol,
+//                             FSCTL_CREATE_USN_JOURNAL,
+//                             &cujd,
+//                             sizeof(cujd),
+//                             NULL,
+//                             0,
+//                             &br,
+//                             NULL);
+
+//    if (0 != status) {
+//        cout << "初始化USN日志文件成功！转向step-04.\n";
+//        initUsnJournalSuccess = true;
+//    } else
+//        cout << "初始化USN日志文件失败 —— status:" << status << " error:" << GetLastError() << "\n";
+//}
+//JOURNAL_INFO journal_info;
+//if (initUsnJournalSuccess) {
+
+//    BOOL getBasicInfoSuccess = false;
+
+
+//    step 04. 获取USN日志基本信息(用于后续操作)
+//    cout << "step 04. 获取USN日志基本信息(用于后续操作)\n";
+//    DWORD br;
+//    status = DeviceIoControl(hVol,
+//                             FSCTL_QUERY_USN_JOURNAL,
+//                             NULL,
+//                             0,
+//                             &UsnInfo,
+//                             sizeof(UsnInfo),
+//                             &br,
+//                             NULL);
+
+//    DWORD bytes_returned;
+//    USN_JOURNAL_DATA ujd;
+
+//    if (DeviceIoControl(hVol, FSCTL_QUERY_USN_JOURNAL, NULL, 0, &ujd, sizeof(ujd), &bytes_returned, NULL)) {
+//        journal_info.journal_id = ujd.UsnJournalID;
+//        journal_info.high_usn = ujd.NextUsn;
+//        cout << "  safasf 获取USN日志基本信息成功！转向step-05.\n";
+//    } else {
+//        CloseHandle(hVol);
+//        return false;
+//    }
+
+
+//    if (0 != status) {
+//        cout << "获取USN日志基本信息成功！转向step-05.\n";
+//        getBasicInfoSuccess = true;
+//    } else
+//        cout << "获取USN日志基本信息失败 —— status:" << status << " error:" << GetLastError() << "\n";
+//    if (getBasicInfoSuccess) {
+//        cout << "UsnJournalID: " << UsnInfo.UsnJournalID << "\n";
+//        cout << "lowUsn: " << UsnInfo.FirstUsn << "\n";
+//        cout << "highUsn: " << UsnInfo.NextUsn << "\n";
+
+//        step 05. 枚举USN日志文件中的所有记录
+//        cout << "step 05. 枚举USN日志文件中的所有记录\n";
+//        MFT_ENUM_DATA_V0 med;
+//        med.StartFileReferenceNumber = 0;
+//        med.LowUsn = 0;
+//        med.HighUsn = journal_info.high_usn;
+
+//        CHAR buffer[BUF_LEN]; //储存记录的缓冲,尽量足够地大 buf_len = 4096
+//        DWORD usnDataSize;
+//        PUSN_RECORD UsnRecord;
+//        long clock_start = clock();
+
+//        USN_JOURNAL_DATA ujd;
+
+//        while (0 != DeviceIoControl(hVol,
+//                                    FSCTL_ENUM_USN_DATA,
+//                                    &med,
+//                                    sizeof(med),
+//                                    buffer,
+//                                    BUF_LEN,
+//                                    &usnDataSize,
+//                                    NULL)) {
+//            DWORD dwRetBytes = usnDataSize - sizeof(USN);
+
+//            UsnRecord = (PUSN_RECORD)(((PCHAR)buffer) + sizeof(USN));// 找到第一个USN记录
+//            while (dwRetBytes > 0) {
+//                const int strLen = UsnRecord->FileNameLength;
+//                char fileName[MAX_PATH] = { 0 };
+//                char filePath[MAX_PATH] = {0};
+//                WideCharToMultiByte(CP_OEMCP, NULL, UsnRecord->FileName, strLen / 2, fileName, strLen, NULL, FALSE);
+
+//                cout << "FileName: " << fileName << "\n";
+//                cout << "FileReferenceNumber: " << UsnRecord->FileReferenceNumber << "\n";
+//                cout << "ParentFileReferenceNumber: " << UsnRecord->ParentFileReferenceNumber << "\n";
+//                cout<< "FilePath: " << filePath << "\n\n";
+
+//                fout << "FileName:" << fileName << endl;
+//                fout << "FileReferenceNumber:" << UsnRecord->FileReferenceNumber << endl;
+//                fout << "ParentFileReferenceNumber:" << UsnRecord->ParentFileReferenceNumber << endl;
+//                fout << "FilePath:" << filePath << endl;
+//                fout << endl;
+//                counter++;
+
+//                 获取下一个记录
+//                DWORD recordLen = UsnRecord->RecordLength;
+//                dwRetBytes -= recordLen;
+//                UsnRecord = (PUSN_RECORD)(((PCHAR)UsnRecord) + recordLen);
+//            }
+//            med.StartFileReferenceNumber = *(USN*)&buffer;
+
+//        }
+//        cout << "共" << counter << "个文件\n";
+//        long clock_end = clock();
+//        cout << "花费" << clock_end - clock_start << "毫秒" << endl;
+//        fout << "共" << counter << "个文件" << endl;
+//        fout << flush;
+//        fout.close();
+//    }
+
+
+//    step 06. 删除USN日志文件(当然也可以不删除)
+//    cout << "step 06. 删除USN日志文件(当然也可以不删除)\n";
+//    DELETE_USN_JOURNAL_DATA dujd;
+//    dujd.UsnJournalID = UsnInfo.UsnJournalID;
+//    dujd.DeleteFlags = USN_DELETE_FLAG_DELETE;
+
+//    status = DeviceIoControl(hVol,
+//                             FSCTL_DELETE_USN_JOURNAL,
+//                             &dujd,
+//                             sizeof(dujd),
+//                             NULL,
+//                             0,
+//                             &br,
+//                             NULL);
+
+//    if (0 != status)
+//        cout << "成功删除USN日志文件!\n";
+//    else
+//        cout << "删除USN日志文件失败 —— status:" << status << " error:" << GetLastError() << "\n";
+//}
+//if (getHandleSuccess)
+//    CloseHandle(hVol);
+////释放资源
+
+
+
+
+//usn_manager usn;
+//usn.start();
+
+
+//   char* volName = (char*)"w:\\";
+//   // memset(volName, 0, sizeof(volName)/sizeof(char *));
+//   HANDLE hVol = new HANDLE;
+//USN_JOURNAL_DATA UsnInfo = {}; // 储存USN日志的基本信息
+
+//   usn.watch_usn(volName, hVol, UsnInfo);

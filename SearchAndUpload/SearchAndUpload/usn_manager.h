@@ -4,12 +4,13 @@
 #include <fstream>
 #include <string>
 #include <time.h>
-
+#include <mutex>
 #include <winbase.h>
 #include <vector>
 #include <algorithm>
 #include <winternl.h>
-
+#include <stack>
+#include <thread>
 using namespace std;
 
 
@@ -23,14 +24,15 @@ typedef struct _FILE_NAME_INFORMATION {
 class usn_manager {
 
     private:
-
+        vector<DWORDLONG> G_element_node;
+        mutex Mutex;//Ïß³ÌËø
 
     public:
-        void start();
+        void start(vector <string> drives);
         int file_type(char* patName, char* relName);
         HMODULE load_ntdll(HMODULE hmodule);
         void get_path_from_frn(HANDLE& volume_handle, DWORDLONG frn);
-        void watch_usn(char* volName);
+        void watch_usn(string path);
         usn_manager();
         ~usn_manager();
 

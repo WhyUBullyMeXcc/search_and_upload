@@ -27,12 +27,17 @@ typedef NTSTATUS(NTAPI* NTCLOSE)(
 
 
 long counters = 0;
-vector<DWORDLONG> G_element_node;
 
-void usn_manager::start() {
-    char* volName = (char*)"E:\\";
-    // memset(volName, 0, sizeof(volName)/sizeof(char *));
-    watch_usn(volName);
+
+void usn_manager::start(vector <string> drives) {
+    for (int i = 0; i < 2; i++) {
+        //drives.size()
+        thread jt(&usn_manager::watch_usn, this, drives.at(i));
+        jt.join();
+    }
+    //char* volName = drives.at(0);
+    //// memset(volName, 0, sizeof(volName)/sizeof(char *));
+    //watch_usn(volName);
 }
 
 int usn_manager::file_type(char* patName, char* relName) {
@@ -162,9 +167,9 @@ void usn_manager::get_path_from_frn(HANDLE& volume_handle, DWORDLONG frn) {
     // CloseHandle(volume_handle);//关闭卷句柄
 }
 
-void usn_manager::watch_usn(char* volName) {
-    ofstream fout("E:\\log.txt");
-    HANDLE hVol = nullptr;
+void usn_manager::watch_usn(string path) {
+    char* volName = (char*) path.c_str();
+    HANDLE hVol = INVALID_HANDLE_VALUE;
     USN_JOURNAL_DATA UsnInfo; // 储存USN日志的基本信息
     BOOL status;
     BOOL isNTFS = false;
@@ -316,13 +321,16 @@ void usn_manager::watch_usn(char* volName) {
 
                         // 获取文件路径
                         // get_path_from_frn(hVol, UsnRecord->FileReferenceNumber);
-
+                        ofstream fout("E:\\log.txt", ios::app);
                         fout << "FileName:" << fileName << endl;
                         fout << "file type" << UsnRecord->FileAttributes << endl;
                         fout << "FileReferenceNumber:" << UsnRecord->FileReferenceNumber << endl;
                         fout << "ParentFileReferenceNumber:" << UsnRecord->ParentFileReferenceNumber << endl;
                         fout << endl;
+                        fout << flush;
+                        fout.close();
                         counters++;
+
                     }
 
                     //fout << "FilePath:" << filePath << endl;
@@ -370,6 +378,7 @@ void usn_manager::watch_usn(char* volName) {
             G_element_node = element_node;
             long clock_end = clock();
             cout << "花费" << clock_end - clock_start << "毫秒" << endl;
+            ofstream fout("E:\\log.txt", ios::app);
             fout << "共" << counters << "个文件" << endl;
             fout << flush;
             fout.close();
