@@ -11,6 +11,9 @@
 #include <winternl.h>
 #include <stack>
 #include <thread>
+#include <algorithm>
+#include <iterator>
+
 using namespace std;
 
 
@@ -24,8 +27,9 @@ typedef struct _FILE_NAME_INFORMATION {
 class usn_manager {
 
     private:
-        vector<DWORDLONG> G_element_node;
+        
         mutex Mutex;//Ïß³ÌËø
+		vector<vector<DWORDLONG>> drives_scan_result;
 
     public:
         void start(vector <string> drives);
@@ -33,6 +37,7 @@ class usn_manager {
         HMODULE load_ntdll(HMODULE hmodule);
         void get_path_from_frn(HANDLE& volume_handle, DWORDLONG frn);
         void watch_usn(string path);
+        void watch_usns(string path,int oper);
         usn_manager();
         ~usn_manager();
 

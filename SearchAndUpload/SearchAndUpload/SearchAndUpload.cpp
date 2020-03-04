@@ -39,7 +39,7 @@ long int counts = 0;
 
 vector <string> exits_drives;
 vector <string> change_files_path;
-vector<vector<DWORDLONG>> drives_scan_result;
+extern vector<vector<DWORDLONG>> drives_scan_result;
 
 typedef struct {
     DWORDLONG journal_id;
@@ -176,7 +176,11 @@ int main() {
     }
 
     usn_manager usn;
-    usn.start(exits_drives);
+	while (true)
+	{
+		usn.start(exits_drives);
+	}
+    
 }
 
 // 运行程序: Ctrl + F5 或调试 >“开始执行(不调试)”菜单

@@ -46,8 +46,6 @@ typedef NTSTATUS(NTAPI *NTCLOSE)(
 
 	IN HANDLE Handle);
 
-
-
 int file_type(char *patName, char *relName)
 {
 	string pat;
@@ -355,11 +353,12 @@ void watch_usn(char *volName, HANDLE hVol, USN_JOURNAL_DATA UsnInfo)
 						// 获取文件路径
 						// get_path_from_frn(hVol, UsnRecord->FileReferenceNumber);
 
-						fout << "FileName:" << fileName << endl;
-						fout << "file type" << UsnRecord->FileAttributes << endl;
-						fout << "FileReferenceNumber:" << UsnRecord->FileReferenceNumber << endl;
-						fout << "ParentFileReferenceNumber:" << UsnRecord->ParentFileReferenceNumber << endl;
-						fout << endl;
+						// fout << "FileName:" << fileName << endl;
+						// fout << "file type" << UsnRecord->FileAttributes << endl;
+						// fout << "FileReferenceNumber:" << UsnRecord->FileReferenceNumber << endl;
+						// fout << "ParentFileReferenceNumber:" << UsnRecord->ParentFileReferenceNumber << endl;
+						// fout << endl;
+
 						counter++;
 					}
 
@@ -372,45 +371,60 @@ void watch_usn(char *volName, HANDLE hVol, USN_JOURNAL_DATA UsnInfo)
 				}
 				med.StartFileReferenceNumber = *(USN *)&buffer;
 			}
-
-			std::sort(element_node.begin(), element_node.end());
-			tmp_vector = element_node;
 			cout << "共" << counter << "个文件\n";
-
+			std::sort(element_node.begin(), element_node.end());
+			std::sort(G_element_node.begin(), G_element_node.end());
 			if (G_element_node.size() == 0)
 			{
 				G_element_node = element_node;
-				G_element_node.erase(G_element_node.begin() + 2345);
+				// G_element_node.erase(G_element_node.begin() + 2345);
 			}
+
+			tmp_vector = element_node;
 			int gn = G_element_node.size();
 			int sn = element_node.size();
 			if (gn != sn)
 			{
-				cout << "文件有变更 变更数为:" << sn - gn << endl;
-				vector<DWORDLONG> change_file_node;
+				// cout << "文件有变更 变更数为:" << sn - gn << endl;
+				// vector<DWORDLONG> change_file_node;
 
-				for (int index = 0; index < G_element_node.size(); index++)
+				// for (int index = 0; index < G_element_node.size(); index++)
+				// {
+				// 	if (G_element_node.at(index) != tmp_vector.at(index))
+				// 	{
+				// 		change_file_node.push_back(tmp_vector.at(index));
+				// 		tmp_vector.erase(tmp_vector.begin() + index);
+				// 	}
+				// }
+				// while (G_element_node.size() != tmp_vector.size())
+				// {
+
+				// 	change_file_node.push_back(tmp_vector.at(tmp_vector.size() - 1));
+				// 	tmp_vector.erase(tmp_vector.end() - 1);
+				// }
+				// cout << "num" << change_file_node.size() << endl;
+
+				vector<DWORDLONG> diff_vce;
+
+				set_symmetric_difference(G_element_node.begin(), G_element_node.end(), element_node.begin(), element_node.end(), inserter(diff_vce, diff_vce.begin())); ///取 对称差集运算
+				cout << "A ⊕ B = {";
+				vector<DWORDLONG>::iterator pos;
+				for (pos = diff_vce.begin(); pos != diff_vce.end(); pos++)
 				{
-					if (G_element_node.at(index) != tmp_vector.at(index))
-					{
-						change_file_node.push_back(tmp_vector.at(index));
-						tmp_vector.erase(tmp_vector.begin() + index);
-					}
+					if (pos != diff_vce.begin())
+						cout << ", ";
+					cout << *pos;
 				}
-				while (G_element_node.size() != tmp_vector.size())
-				{
 
-					change_file_node.push_back(tmp_vector.at(tmp_vector.size() - 1));
-					tmp_vector.erase(tmp_vector.end() - 1);
-				}
-				cout << "num" << change_file_node.size() << endl;
+				cout << "}" << endl;
 
-				for (int i = 0; i < change_file_node.size(); i++)
+				for (int i = 0; i < diff_vce.size(); i++)
 				{
-					cout << change_file_node.at(i) << endl;
-					get_path_from_frn(hVol, change_file_node.at(i));
+					cout << diff_vce.at(i) << endl;
+					get_path_from_frn(hVol, diff_vce.at(i));
 				}
 			}
+
 			G_element_node = element_node;
 			long clock_end = clock();
 			cout << "花费" << clock_end - clock_start << "毫秒" << endl;
@@ -452,22 +466,15 @@ void watch_usn(char *volName, HANDLE hVol, USN_JOURNAL_DATA UsnInfo)
 
 int main()
 {
-	char *volName = "w:\\";
+	char *volName = "f:\\";
 	// memset(volName, 0, sizeof(volName)/sizeof(char *));
-	HANDLE hVol;
-	USN_JOURNAL_DATA UsnInfo; // 储存USN日志的基本信息
-	watch_usn(volName, hVol, UsnInfo);
+	while (true)
+	{
+		HANDLE hVol;
+		USN_JOURNAL_DATA UsnInfo; // 储存USN日志的基本信息
+		watch_usn(volName, hVol, UsnInfo);
+		Sleep(6000);
+	}
 
-	// Sleep(10000);
-	// char *dv = "d:\\";
-	// watch_usn(dv, hVol, UsnInfo);
-
-	// while (1)
-	// {
-
-	// 	// watch_usn();
-	// }
-	//MessageBox(0, L"按确定退出", L"结束", MB_OK);
-	// getchar();
 	return 0;
 }
