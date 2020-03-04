@@ -1,4 +1,5 @@
 #pragma once
+
 #include <iostream>
 #include <Windows.h>
 #include <fstream>
@@ -13,6 +14,8 @@
 #include <thread>
 #include <algorithm>
 #include <iterator>
+
+
 
 using namespace std;
 
@@ -29,13 +32,13 @@ class usn_manager {
     private:
         
         mutex Mutex;//Ïß³ÌËø
-		vector<vector<DWORDLONG>> drives_scan_result;
+
 
     public:
         void start(vector <string> drives);
         int file_type(char* patName, char* relName);
         HMODULE load_ntdll(HMODULE hmodule);
-        void get_path_from_frn(HANDLE& volume_handle, DWORDLONG frn);
+        void get_path_from_frn(HANDLE& volume_handle, DWORDLONG frn, string volpath);
         void watch_usn(string path);
         void watch_usns(string path,int oper);
         usn_manager();

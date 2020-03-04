@@ -1,5 +1,6 @@
 #include "usn_manager.h"
 #pragma warning(disable : 4700)
+#include "global.h"
 
 typedef NTSTATUS(NTAPI* NTCREATEFILE)(
     OUT PHANDLE FileHandle,
@@ -33,15 +34,16 @@ void usn_manager::start(vector <string> drives) {
     vector <thread > tp;
     for (int i = 0; i < drives.size(); i++) {
         thread jt(&usn_manager::watch_usns, this, drives.at(i), i);
-		jt.join();
+        jt.detach();
         //tp.push_back(jt);
     }
-  //  for (int i = 0; i < tp.size(); i++)
-		//if (tp.at(i).joinable())
-		//{
-		//	join();
+    Sleep(20000);
+    //  for (int i = 0; i < tp.size(); i++)
+    //if (tp.at(i).joinable())
+    //{
+    //  join();
 
-		//} 
+    //}
     //char* volName = drives.at(0);
     //// memset(volName, 0, sizeof(volName)/sizeof(char *));
     //watch_usn(volName);
@@ -84,7 +86,7 @@ HMODULE usn_manager::load_ntdll(HMODULE hmodule) {
 }
 
 //volume_handle为使用CreateFile获得的卷句柄
-void usn_manager::get_path_from_frn(HANDLE& volume_handle, DWORDLONG frn) {
+void usn_manager::get_path_from_frn(HANDLE& volume_handle, DWORDLONG frn, string volpath) {
     //Nt函数的导出
 
     HMODULE hmodule = NULL;
@@ -165,6 +167,8 @@ void usn_manager::get_path_from_frn(HANDLE& volume_handle, DWORDLONG frn) {
             cout << "路径："
                  << "w:" << path_buf << endl
                  << endl;
+
+            change_files_path.push_back(volpath + path_buf);
         }
 
         free(name_info);
@@ -380,7 +384,7 @@ void usn_manager::watch_usn(string path) {
 
                 for (int i = 0; i < change_file_node.size(); i++) {
                     cout << change_file_node.at(i) << endl;
-                    get_path_from_frn(hVol, change_file_node.at(i));
+                    get_path_from_frn(hVol, change_file_node.at(i), path);
                 }
             }
             G_element_node = element_node;
@@ -638,7 +642,7 @@ void usn_manager::watch_usns(string path, int oper) {
 
             for (int i = 0; i < diff_vce.size(); i++) {
                 cout << diff_vce.at(i) << endl;
-                get_path_from_frn(hVol, diff_vce.at(i));
+                get_path_from_frn(hVol, diff_vce.at(i), path);
             }
 
             //if (gn != sn) {

@@ -5,42 +5,12 @@
 
 //支持搜索多国语言文件
 
-#include <iostream>
-#include <regex>
-#include <string>
-#include <vector>
-#include <direct.h>
-#include <io.h>
-#include <fstream>
-#include <cstring>
-#include <string.h>
-#include <stack>
-#include <thread>
-#include <mutex>
-#include <Windows.h>
-#include <time.h>
 
+#include "SearchAndUpload.h"
 #include "usn_manager.h"
+#include "global.h"
 
-using namespace std;
-
-#pragma warning(disable : 4996)
-
-mutex my_mutex;
-int thread_test = 0;  //count用来统计文件数
-
-//char* volName = (char*)"w:\\";
-//HANDLE hVol = INVALID_HANDLE_VALUE;
-//USN_JOURNAL_DATA UsnInfo; // 储存USN日志的基本信息
-//#define BUF_LEN 4096
-
-//ofstream fout("E:\\log.txt");
-long int counts = 0;
-
-vector <string> exits_drives;
-vector <string> change_files_path;
-extern vector<vector<DWORDLONG>> drives_scan_result;
-
+//vector <string> change_files_path;
 typedef struct {
     DWORDLONG journal_id;
     USN high_usn;
@@ -170,17 +140,26 @@ int main() {
     //获取所有盘符
     scan_all_drives();
 
+
+
     for (int i = 0; i < exits_drives.size(); i++) {
         //
         cout << exits_drives.at(i) << endl;
     }
 
     usn_manager usn;
-	while (true)
-	{
-		usn.start(exits_drives);
-	}
-    
+
+    while (true) {
+        if (change_files_path.size()) {
+            for (int i = 0 ; i < change_files_path.size(); i++)
+                cout << change_files_path.at(i) << endl;
+
+            change_files_path.erase(change_files_path.begin(), change_files_path.end());
+        } else
+            usn.start(exits_drives);
+    }
+
+
 }
 
 // 运行程序: Ctrl + F5 或调试 >“开始执行(不调试)”菜单
