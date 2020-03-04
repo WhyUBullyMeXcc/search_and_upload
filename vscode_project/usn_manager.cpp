@@ -1,33 +1,7 @@
 #include "usn_manager.h"
-#pragma warning(disable : 4700)
-
-typedef NTSTATUS(NTAPI* NTCREATEFILE)(
-    OUT PHANDLE FileHandle,
-    IN ACCESS_MASK DesiredAccess,
-    IN POBJECT_ATTRIBUTES ObjectAttributes,
-    OUT PIO_STATUS_BLOCK IoStatusBlock,
-    IN PLARGE_INTEGER AllocationSize OPTIONAL,
-    IN ULONG FileAttributes,
-    IN ULONG ShareAccess,
-    IN ULONG CreateDisposition,
-    IN ULONG CreateOptions,
-    IN PVOID EaBuffer OPTIONAL,
-    IN ULONG EaLength);
-
-typedef NTSTATUS(NTAPI* NTQUERYINFORMATIONFILE)(
-    HANDLE handle,
-    PIO_STATUS_BLOCK io,
-    PVOID ptr,
-    ULONG len,
-    FILE_INFORMATION_CLASS FileInformationClass);
-
-typedef NTSTATUS(NTAPI* NTCLOSE)(
-    IN HANDLE Handle);
 
 
 
-long counters = 0;
-vector<DWORDLONG> G_element_node;
 
 void usn_manager::start() {
     char* volName = (char*)"E:\\";
@@ -164,7 +138,7 @@ void usn_manager::get_path_from_frn(HANDLE& volume_handle, DWORDLONG frn) {
 
 void usn_manager::watch_usn(char* volName) {
 	ofstream fout("E:\\log.txt");
-    HANDLE hVol =nullptr;
+    HANDLE hVol =INVALID_HANDLE_VALUE;
     USN_JOURNAL_DATA UsnInfo; // 储存USN日志的基本信息
     BOOL status;
     BOOL isNTFS = false;
@@ -401,9 +375,3 @@ void usn_manager::watch_usn(char* volName) {
     //释放资源
 }
 
-
-usn_manager::usn_manager() {
-}
-
-usn_manager::~usn_manager() {
-}

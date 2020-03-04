@@ -4,5 +4,13 @@
 			"path": "."
 		}
 	],
-	"settings": {}
+	"settings": {
+		"files.associations": {
+			"regex": "cpp",
+			"iostream": "cpp",
+			"thread": "cpp",
+			"mutex": "cpp",
+			"ostream": "cpp"
+		}
+	}
 }

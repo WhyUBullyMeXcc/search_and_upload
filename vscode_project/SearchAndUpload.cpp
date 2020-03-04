@@ -1,9 +1,9 @@
-ï»¿// SearchAndUpload.cpp : æ­¤æ–‡ä»¶åŒ…å« "main" å‡½æ•°ã€‚ç¨‹åºæ‰§è¡Œå°†åœ¨æ­¤å¤„å¼€å§‹å¹¶ç»“æŸã€‚
+// SearchAndUpload.cpp : ´ËÎÄ¼ş°üº¬ "main" º¯Êı¡£³ÌĞòÖ´ĞĞ½«ÔÚ´Ë´¦¿ªÊ¼²¢½áÊø¡£
 //
-//å‘½ä»¤è¡Œå·¥å…·å®ç°æœç´¢Windowsç³»ç»Ÿ,å…¨ç£ç›˜å¦‚æœæœ‰æ–°äº§ç”Ÿçš„æŒ‡å®šå¤šé’Ÿåç¼€æ–‡ä»¶ï¼ˆæ¯”å¦‚docxã€PDFã€PPTç­‰ï¼‰ï¼Œç«‹å³é€šè¿‡æ‰“åŒ…å‹ç¼©åŠ å¯†ä¸Šä¼ æ–‡ä»¶ï¼›
-//å¯ä»¥ä¸Šä¼ ç¬¬ä¸‰æ–¹ç½‘ç›˜ï¼ˆå¯ä»¥è€ƒè™‘dropboxç½‘ç›˜ï¼Œéœ€è¦æŒ‚VPn,ç™¾åº¦ç½‘ç›˜ç­‰ï¼‰ï¼Œä¸Šä¼ æˆåŠŸåï¼Œæ”¯æŒrarè§£å‹åŠ å¯†æ–‡ä»¶ï¼›
+//ÃüÁîĞĞ¹¤¾ßÊµÏÖËÑË÷WindowsÏµÍ³,È«´ÅÅÌÈç¹ûÓĞĞÂ²úÉúµÄÖ¸¶¨¶àÖÓºó×ºÎÄ¼ş£¨±ÈÈçdocx¡¢PDF¡¢PPTµÈ£©£¬Á¢¼´Í¨¹ı´ò°üÑ¹Ëõ¼ÓÃÜÉÏ´«ÎÄ¼ş£»
+//¿ÉÒÔÉÏ´«µÚÈı·½ÍøÅÌ£¨¿ÉÒÔ¿¼ÂÇdropboxÍøÅÌ£¬ĞèÒª¹ÒVPn,°Ù¶ÈÍøÅÌµÈ£©£¬ÉÏ´«³É¹¦ºó£¬Ö§³Örar½âÑ¹¼ÓÃÜÎÄ¼ş£»
 
-//æ”¯æŒæœç´¢å¤šå›½è¯­è¨€æ–‡ä»¶
+//Ö§³ÖËÑË÷¶à¹úÓïÑÔÎÄ¼ş
 
 #include <iostream>
 #include <regex>
@@ -24,19 +24,17 @@
 #include <fstream>
 #include <string>
 #include <time.h>
+#include <handleapi.h>
 
-#include "usn_manager.h"
 
 using namespace std;
 
-#pragma warning(disable : 4996)
-
 mutex my_mutex;
-int counts = 0;  //countç”¨æ¥ç»Ÿè®¡æ–‡ä»¶æ•°
+int counts = 0;  //countÓÃÀ´Í³¼ÆÎÄ¼şÊı
 using namespace std;
 char* volName = (char*)"w:\\";
 HANDLE hVol = INVALID_HANDLE_VALUE;
-USN_JOURNAL_DATA UsnInfo; // å‚¨å­˜USNæ—¥å¿—çš„åŸºæœ¬ä¿¡æ¯
+USN_JOURNAL_DATA UsnInfo; // ´¢´æUSNÈÕÖ¾µÄ»ù±¾ĞÅÏ¢
 #define BUF_LEN 4096
 
 ofstream fout("E:\\log.txt");
@@ -104,10 +102,10 @@ int file_type(char* patName, char* relName) {
 void listFiles(char* path, char* name, bool children = false) {
     intptr_t handle;
     _finddata_t findData;
-    char curPath[MAX_PATH], nextPath[MAX_PATH], curFileName[MAX_PATH];  //curPathä¸ºå½“å‰æœç´¢è·¯å¾„ï¼ŒnextPathä¸ºå…¶ä¸€å­æ–‡ä»¶å¤¹è·¯å¾„
+    char curPath[MAX_PATH], nextPath[MAX_PATH], curFileName[MAX_PATH];  //curPathÎªµ±Ç°ËÑË÷Â·¾¶£¬nextPathÎªÆäÒ»×ÓÎÄ¼ş¼ĞÂ·¾¶
     strcpy(curPath, path);
-    strcat(curPath, "\\*.*");  //æ‰§è¡ŒcurPath=path+"\\*.*"
-    handle = _findfirst(curPath, &findData);    // æŸ¥æ‰¾ç›®å½•ä¸­çš„ç¬¬ä¸€ä¸ªæ–‡ä»¶
+    strcat(curPath, "\\*.*");  //Ö´ĞĞcurPath=path+"\\*.*"
+    handle = _findfirst(curPath, &findData);    // ²éÕÒÄ¿Â¼ÖĞµÄµÚÒ»¸öÎÄ¼ş
     if (handle == -1) {
         cout << "Failed to find first file!\n";
         return;
@@ -117,22 +115,22 @@ void listFiles(char* path, char* name, bool children = false) {
     //output.open("files.txt");
 
     do {
-        if ((findData.attrib == _A_SUBDIR) && (findData.name[0] != '.')) { // æ˜¯å¦æ˜¯å­ç›®å½•å¹¶ä¸”ä¸ä¸º"."æˆ–".."
+        if ((findData.attrib == _A_SUBDIR) && (findData.name[0] != '.')) { // ÊÇ·ñÊÇ×ÓÄ¿Â¼²¢ÇÒ²»Îª"."»ò".."
             strcpy(curFileName, findData.name);
             strcpy(nextPath, path);
             strcat(nextPath, "\\");
-            strcat(nextPath, curFileName);  //æ‰§è¡ŒnextPath=path+"\\"+findData.nameï¼Œå½¢æˆå­æ–‡ä»¶å¤¹è·¯å¾„
-            listFiles(nextPath, name, children);  //é€’å½’æœç´¢å­æ–‡ä»¶å¤¹
+            strcat(nextPath, curFileName);  //Ö´ĞĞnextPath=path+"\\"+findData.name£¬ĞÎ³É×ÓÎÄ¼ş¼ĞÂ·¾¶
+            listFiles(nextPath, name, children);  //µİ¹éËÑË÷×ÓÎÄ¼ş¼Ğ
         } else if (findData.name[0] != '.') {
-            if (file_type(name, findData.name)) { //æ¯”è¾ƒå½“å‰æ–‡ä»¶æ˜¯å¦ä¸æœç´¢å­—ç¬¦ä¸²åŒ¹é…
+            if (file_type(name, findData.name)) { //±È½Ïµ±Ç°ÎÄ¼şÊÇ·ñÓëËÑË÷×Ö·û´®Æ¥Åä
                 DWORD sf = GetFileType((HANDLE*)handle);
                 cout << path << "/" << findData.name << "\t" << findData.size << endl;
                 counts++;
             }
 
         }
-    } while (_findnext(handle, &findData) == 0);    // æŸ¥æ‰¾ç›®å½•ä¸­çš„ä¸‹ä¸€ä¸ªæ–‡ä»¶
-    _findclose(handle);    // å…³é—­æœç´¢å¥æŸ„
+    } while (_findnext(handle, &findData) == 0);    // ²éÕÒÄ¿Â¼ÖĞµÄÏÂÒ»¸öÎÄ¼ş
+    _findclose(handle);    // ¹Ø±ÕËÑË÷¾ä±ú
 }
 
 BOOL get_handle(char* volume_name, HANDLE&  volume_handle) {
@@ -148,13 +146,13 @@ int main() {
 
     string dir = "W:/*.txt";
     //listFiles((char*)"D:", (char*)".cpp", true);
-    thread t1(counters, 1, 6);
-    thread t2(counters, 2, 4);
+    // thread t1(counters, 1, 6);
+    // thread t2(counters, 2, 4);
 
-    //å¦‚æœæ²¡æœ‰joinï¼Œmainå‡½æ•°åŠ è½½ä¸¤ä¸ªçº¿ç¨‹åç«‹å³ç»“æŸï¼Œå¯¼è‡´çº¿ç¨‹ä¹Ÿä¸­æ­¢
-    //å¯ä»¥ç¡®ä¿ä¸»çº¿ç¨‹ä¸€ç›´è¿è¡Œï¼Œç›´åˆ°ä¸¤ä¸ªçº¿ç¨‹éƒ½æ‰§è¡Œå®Œæ¯•
-    t1.join();
-    t2.join();
+    // //Èç¹ûÃ»ÓĞjoin£¬mainº¯Êı¼ÓÔØÁ½¸öÏß³ÌºóÁ¢¼´½áÊø£¬µ¼ÖÂÏß³ÌÒ²ÖĞÖ¹
+    // //¿ÉÒÔÈ·±£Ö÷Ïß³ÌÒ»Ö±ÔËĞĞ£¬Ö±µ½Á½¸öÏß³Ì¶¼Ö´ĞĞÍê±Ï
+    // t1.join();
+    // t2.join();
 
 
 
@@ -171,8 +169,8 @@ int main() {
     BOOL getHandleSuccess = false;
     BOOL initUsnJournalSuccess = false;
 
-    //åˆ¤æ–­é©±åŠ¨ç›˜æ˜¯å¦NTFSæ ¼å¼
-    cout << "step 01. åˆ¤æ–­é©±åŠ¨ç›˜æ˜¯å¦NTFSæ ¼å¼\n";
+    //ÅĞ¶ÏÇı¶¯ÅÌÊÇ·ñNTFS¸ñÊ½
+    cout << "step 01. ÅĞ¶ÏÇı¶¯ÅÌÊÇ·ñNTFS¸ñÊ½\n";
     char sysNameBuf[MAX_PATH] = { 0 };
     status = GetVolumeInformationA(volName,
                                    NULL,
@@ -180,50 +178,50 @@ int main() {
                                    NULL,
                                    NULL,
                                    NULL,
-                                   sysNameBuf, // é©±åŠ¨ç›˜çš„ç³»ç»Ÿå
+                                   sysNameBuf, // Çı¶¯ÅÌµÄÏµÍ³Ãû
                                    MAX_PATH);
     cout << status << endl;
     if (0 != status) {
-        cout << "æ–‡ä»¶ç³»ç»Ÿå:" << sysNameBuf << "\n";
-        // æ¯”è¾ƒå­—ç¬¦ä¸²
+        cout << "ÎÄ¼şÏµÍ³Ãû:" << sysNameBuf << "\n";
+        // ±È½Ï×Ö·û´®
         if (0 == strcmp(sysNameBuf, "NTFS")) {
-            cout << "æ­¤é©±åŠ¨ç›˜æ˜¯NTFSæ ¼å¼ï¼è½¬å‘step-02.\n";
+            cout << "´ËÇı¶¯ÅÌÊÇNTFS¸ñÊ½£¡×ªÏòstep-02.\n";
             isNTFS = true;
         } else
-            cout << "è¯¥é©±åŠ¨ç›˜éNTFSæ ¼å¼\n";
+            cout << "¸ÃÇı¶¯ÅÌ·ÇNTFS¸ñÊ½\n";
 
     }
 
     if (isNTFS) {
-        //step 02. è·å–é©±åŠ¨ç›˜å¥æŸ„
-        cout << "step 02. è·å–é©±åŠ¨ç›˜å¥æŸ„\n";
+        //step 02. »ñÈ¡Çı¶¯ÅÌ¾ä±ú
+        cout << "step 02. »ñÈ¡Çı¶¯ÅÌ¾ä±ú\n";
         char fileName[MAX_PATH];
         fileName[0] = '\0';
-        strcpy_s(fileName, "\\\\.\\");//ä¼ å…¥çš„æ–‡ä»¶å
+        strcpy_s(fileName, "\\\\.\\");//´«ÈëµÄÎÄ¼şÃû
         strcat_s(fileName, volName);
         string fileNameStr = (string)fileName;
         fileNameStr.erase(fileNameStr.find_last_of(":") + 1);
-        cout << "é©±åŠ¨ç›˜åœ°å€:" << fileNameStr.data() << "\n";
-        hVol = CreateFile(fileNameStr.data(), GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, 0, NULL);
-        //hVol = CreateFileA(fileNameStr.data(),//å¯æ‰“å¼€æˆ–åˆ›å»ºä»¥ä¸‹å¯¹è±¡ï¼Œå¹¶è¿”å›å¯è®¿é—®çš„å¥æŸ„ï¼šæ§åˆ¶å°ï¼Œé€šä¿¡èµ„æºï¼Œç›®å½•ï¼ˆåªè¯»æ‰“å¼€ï¼‰ï¼Œç£ç›˜é©±åŠ¨å™¨ï¼Œæ–‡ä»¶
-        //                   GENERIC_READ | GENERIC_WRITE,
-        //                   FILE_SHARE_READ | FILE_SHARE_WRITE,
-        //                   NULL,
-        //                   OPEN_EXISTING,
-        //                   FILE_ATTRIBUTE_READONLY,
-        //                   NULL);
+        cout << "Çı¶¯ÅÌµØÖ·:" << fileNameStr.data() << "\n";
+        // hVol = CreateFile((LPCWSTR)fileNameStr.data(), GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, 0, NULL);
+        hVol = CreateFileA(fileNameStr.data(),//¿É´ò¿ª»ò´´½¨ÒÔÏÂ¶ÔÏó£¬²¢·µ»Ø¿É·ÃÎÊµÄ¾ä±ú£º¿ØÖÆÌ¨£¬Í¨ĞÅ×ÊÔ´£¬Ä¿Â¼£¨Ö»¶Á´ò¿ª£©£¬´ÅÅÌÇı¶¯Æ÷£¬ÎÄ¼ş
+                          GENERIC_READ | GENERIC_WRITE,
+                          FILE_SHARE_READ | FILE_SHARE_WRITE,
+                          NULL,
+                          OPEN_EXISTING,
+                          FILE_ATTRIBUTE_READONLY,
+                          NULL);
         cout << hVol << endl;
 
         if (INVALID_HANDLE_VALUE != hVol) {
-            cout << "è·å–é©±åŠ¨ç›˜å¥æŸ„æˆåŠŸï¼è½¬å‘step-03.\n";
+            cout << "»ñÈ¡Çı¶¯ÅÌ¾ä±ú³É¹¦£¡×ªÏòstep-03.\n";
             getHandleSuccess = true;
         } else
-            cout << "è·å–é©±åŠ¨ç›˜å¥æŸ„å¤±è´¥ â€”â€” handle:" << hVol << " error:" << GetLastError() << "\n";
+            cout << "»ñÈ¡Çı¶¯ÅÌ¾ä±úÊ§°Ü ¡ª¡ª handle:" << hVol << " error:" << GetLastError() << "\n";
     }
 
     if (getHandleSuccess) {
-        //step 03. åˆå§‹åŒ–USNæ—¥å¿—æ–‡ä»¶
-        cout << "step 03. åˆå§‹åŒ–USNæ—¥å¿—æ–‡ä»¶\n";
+        //step 03. ³õÊ¼»¯USNÈÕÖ¾ÎÄ¼ş
+        cout << "step 03. ³õÊ¼»¯USNÈÕÖ¾ÎÄ¼ş\n";
         DWORD br;
         CREATE_USN_JOURNAL_DATA cujd;
         cujd.MaximumSize = 0;
@@ -238,10 +236,10 @@ int main() {
                                  NULL);
 
         if (0 != status) {
-            cout << "åˆå§‹åŒ–USNæ—¥å¿—æ–‡ä»¶æˆåŠŸï¼è½¬å‘step-04.\n";
+            cout << "³õÊ¼»¯USNÈÕÖ¾ÎÄ¼ş³É¹¦£¡×ªÏòstep-04.\n";
             initUsnJournalSuccess = true;
         } else
-            cout << "åˆå§‹åŒ–USNæ—¥å¿—æ–‡ä»¶å¤±è´¥ â€”â€” status:" << status << " error:" << GetLastError() << "\n";
+            cout << "³õÊ¼»¯USNÈÕÖ¾ÎÄ¼şÊ§°Ü ¡ª¡ª status:" << status << " error:" << GetLastError() << "\n";
     }
     JOURNAL_INFO journal_info;
     if (initUsnJournalSuccess) {
@@ -249,8 +247,8 @@ int main() {
         BOOL getBasicInfoSuccess = false;
 
 
-        //step 04. è·å–USNæ—¥å¿—åŸºæœ¬ä¿¡æ¯(ç”¨äºåç»­æ“ä½œ)
-        cout << "step 04. è·å–USNæ—¥å¿—åŸºæœ¬ä¿¡æ¯(ç”¨äºåç»­æ“ä½œ)\n";
+        //step 04. »ñÈ¡USNÈÕÖ¾»ù±¾ĞÅÏ¢(ÓÃÓÚºóĞø²Ù×÷)
+        cout << "step 04. »ñÈ¡USNÈÕÖ¾»ù±¾ĞÅÏ¢(ÓÃÓÚºóĞø²Ù×÷)\n";
         DWORD br;
         status = DeviceIoControl(hVol,
                                  FSCTL_QUERY_USN_JOURNAL,
@@ -267,7 +265,7 @@ int main() {
         if (DeviceIoControl(hVol, FSCTL_QUERY_USN_JOURNAL, NULL, 0, &ujd, sizeof(ujd), &bytes_returned, NULL)) {
             journal_info.journal_id = ujd.UsnJournalID;
             journal_info.high_usn = ujd.NextUsn;
-            cout << "  safasf è·å–USNæ—¥å¿—åŸºæœ¬ä¿¡æ¯æˆåŠŸï¼è½¬å‘step-05.\n";
+            cout << "  safasf »ñÈ¡USNÈÕÖ¾»ù±¾ĞÅÏ¢³É¹¦£¡×ªÏòstep-05.\n";
         } else {
             CloseHandle(hVol);
             return false;
@@ -275,23 +273,23 @@ int main() {
 
 
         if (0 != status) {
-            cout << "è·å–USNæ—¥å¿—åŸºæœ¬ä¿¡æ¯æˆåŠŸï¼è½¬å‘step-05.\n";
+            cout << "»ñÈ¡USNÈÕÖ¾»ù±¾ĞÅÏ¢³É¹¦£¡×ªÏòstep-05.\n";
             getBasicInfoSuccess = true;
         } else
-            cout << "è·å–USNæ—¥å¿—åŸºæœ¬ä¿¡æ¯å¤±è´¥ â€”â€” status:" << status << " error:" << GetLastError() << "\n";
+            cout << "»ñÈ¡USNÈÕÖ¾»ù±¾ĞÅÏ¢Ê§°Ü ¡ª¡ª status:" << status << " error:" << GetLastError() << "\n";
         if (getBasicInfoSuccess) {
             cout << "UsnJournalID: " << UsnInfo.UsnJournalID << "\n";
             cout << "lowUsn: " << UsnInfo.FirstUsn << "\n";
             cout << "highUsn: " << UsnInfo.NextUsn << "\n";
 
-            //step 05. æšä¸¾USNæ—¥å¿—æ–‡ä»¶ä¸­çš„æ‰€æœ‰è®°å½•
-            cout << "step 05. æšä¸¾USNæ—¥å¿—æ–‡ä»¶ä¸­çš„æ‰€æœ‰è®°å½•\n";
+            //step 05. Ã¶¾ÙUSNÈÕÖ¾ÎÄ¼şÖĞµÄËùÓĞ¼ÇÂ¼
+            cout << "step 05. Ã¶¾ÙUSNÈÕÖ¾ÎÄ¼şÖĞµÄËùÓĞ¼ÇÂ¼\n";
             MFT_ENUM_DATA med;
             med.StartFileReferenceNumber = 0;
             med.LowUsn = 0;
             med.HighUsn = journal_info.high_usn;
 
-            CHAR buffer[BUF_LEN]; //å‚¨å­˜è®°å½•çš„ç¼“å†²,å°½é‡è¶³å¤Ÿåœ°å¤§ buf_len = 4096
+            CHAR buffer[BUF_LEN]; //´¢´æ¼ÇÂ¼µÄ»º³å,¾¡Á¿×ã¹»µØ´ó buf_len = 4096
             DWORD usnDataSize;
             PUSN_RECORD UsnRecord;
             long clock_start = clock();
@@ -308,7 +306,7 @@ int main() {
                                         NULL)) {
                 DWORD dwRetBytes = usnDataSize - sizeof(USN);
 
-                UsnRecord = (PUSN_RECORD)(((PCHAR)buffer) + sizeof(USN));// æ‰¾åˆ°ç¬¬ä¸€ä¸ªUSNè®°å½•
+                UsnRecord = (PUSN_RECORD)(((PCHAR)buffer) + sizeof(USN));// ÕÒµ½µÚÒ»¸öUSN¼ÇÂ¼
                 while (dwRetBytes > 0) {
                     const int strLen = UsnRecord->FileNameLength;
                     char fileName[MAX_PATH] = { 0 };
@@ -327,7 +325,7 @@ int main() {
                     fout << endl;
                     counter++;
 
-                    // è·å–ä¸‹ä¸€ä¸ªè®°å½•
+                    // »ñÈ¡ÏÂÒ»¸ö¼ÇÂ¼
                     DWORD recordLen = UsnRecord->RecordLength;
                     dwRetBytes -= recordLen;
                     UsnRecord = (PUSN_RECORD)(((PCHAR)UsnRecord) + recordLen);
@@ -335,17 +333,17 @@ int main() {
                 med.StartFileReferenceNumber = *(USN*)&buffer;
 
             }
-            cout << "å…±" << counter << "ä¸ªæ–‡ä»¶\n";
+            cout << "¹²" << counter << "¸öÎÄ¼ş\n";
             long clock_end = clock();
-            cout << "èŠ±è´¹" << clock_end - clock_start << "æ¯«ç§’" << endl;
-            fout << "å…±" << counter << "ä¸ªæ–‡ä»¶" << endl;
+            cout << "»¨·Ñ" << clock_end - clock_start << "ºÁÃë" << endl;
+            fout << "¹²" << counter << "¸öÎÄ¼ş" << endl;
             fout << flush;
             fout.close();
         }
 
 
-        //step 06. åˆ é™¤USNæ—¥å¿—æ–‡ä»¶(å½“ç„¶ä¹Ÿå¯ä»¥ä¸åˆ é™¤)
-        cout << "step 06. åˆ é™¤USNæ—¥å¿—æ–‡ä»¶(å½“ç„¶ä¹Ÿå¯ä»¥ä¸åˆ é™¤)\n";
+        //step 06. É¾³ıUSNÈÕÖ¾ÎÄ¼ş(µ±È»Ò²¿ÉÒÔ²»É¾³ı)
+        cout << "step 06. É¾³ıUSNÈÕÖ¾ÎÄ¼ş(µ±È»Ò²¿ÉÒÔ²»É¾³ı)\n";
         DELETE_USN_JOURNAL_DATA dujd;
         dujd.UsnJournalID = UsnInfo.UsnJournalID;
         dujd.DeleteFlags = USN_DELETE_FLAG_DELETE;
@@ -360,13 +358,13 @@ int main() {
                                  NULL);
 
         if (0 != status)
-            cout << "æˆåŠŸåˆ é™¤USNæ—¥å¿—æ–‡ä»¶!\n";
+            cout << "³É¹¦É¾³ıUSNÈÕÖ¾ÎÄ¼ş!\n";
         else
-            cout << "åˆ é™¤USNæ—¥å¿—æ–‡ä»¶å¤±è´¥ â€”â€” status:" << status << " error:" << GetLastError() << "\n";
+            cout << "É¾³ıUSNÈÕÖ¾ÎÄ¼şÊ§°Ü ¡ª¡ª status:" << status << " error:" << GetLastError() << "\n";
     }
     if (getHandleSuccess)
         CloseHandle(hVol);
-    //é‡Šæ”¾èµ„æº
+    //ÊÍ·Å×ÊÔ´
 
 
 
@@ -378,18 +376,18 @@ int main() {
     //   char* volName = (char*)"w:\\";
     //   // memset(volName, 0, sizeof(volName)/sizeof(char *));
     //   HANDLE hVol = new HANDLE;
-    //USN_JOURNAL_DATA UsnInfo = {}; // å‚¨å­˜USNæ—¥å¿—çš„åŸºæœ¬ä¿¡æ¯
+    //USN_JOURNAL_DATA UsnInfo = {}; // ´¢´æUSNÈÕÖ¾µÄ»ù±¾ĞÅÏ¢
 
     //   usn.watch_usn(volName, hVol, UsnInfo);
 }
 
-// è¿è¡Œç¨‹åº: Ctrl + F5 æˆ–è°ƒè¯• >â€œå¼€å§‹æ‰§è¡Œ(ä¸è°ƒè¯•)â€èœå•
-// è°ƒè¯•ç¨‹åº: F5 æˆ–è°ƒè¯• >â€œå¼€å§‹è°ƒè¯•â€èœå•
+// ÔËĞĞ³ÌĞò: Ctrl + F5 »òµ÷ÊÔ >¡°¿ªÊ¼Ö´ĞĞ(²»µ÷ÊÔ)¡±²Ëµ¥
+// µ÷ÊÔ³ÌĞò: F5 »òµ÷ÊÔ >¡°¿ªÊ¼µ÷ÊÔ¡±²Ëµ¥
 
-// å…¥é—¨ä½¿ç”¨æŠ€å·§:
-//   1. ä½¿ç”¨è§£å†³æ–¹æ¡ˆèµ„æºç®¡ç†å™¨çª—å£æ·»åŠ /ç®¡ç†æ–‡ä»¶
-//   2. ä½¿ç”¨å›¢é˜Ÿèµ„æºç®¡ç†å™¨çª—å£è¿æ¥åˆ°æºä»£ç ç®¡ç†
-//   3. ä½¿ç”¨è¾“å‡ºçª—å£æŸ¥çœ‹ç”Ÿæˆè¾“å‡ºå’Œå…¶ä»–æ¶ˆæ¯
-//   4. ä½¿ç”¨é”™è¯¯åˆ—è¡¨çª—å£æŸ¥çœ‹é”™è¯¯
-//   5. è½¬åˆ°â€œé¡¹ç›®â€>â€œæ·»åŠ æ–°é¡¹â€ä»¥åˆ›å»ºæ–°çš„ä»£ç æ–‡ä»¶ï¼Œæˆ–è½¬åˆ°â€œé¡¹ç›®â€>â€œæ·»åŠ ç°æœ‰é¡¹â€ä»¥å°†ç°æœ‰ä»£ç æ–‡ä»¶æ·»åŠ åˆ°é¡¹ç›®
-//   6. å°†æ¥ï¼Œè‹¥è¦å†æ¬¡æ‰“å¼€æ­¤é¡¹ç›®ï¼Œè¯·è½¬åˆ°â€œæ–‡ä»¶â€>â€œæ‰“å¼€â€>â€œé¡¹ç›®â€å¹¶é€‰æ‹© .sln æ–‡ä»¶
+// ÈëÃÅÊ¹ÓÃ¼¼ÇÉ:
+//   1. Ê¹ÓÃ½â¾ö·½°¸×ÊÔ´¹ÜÀíÆ÷´°¿ÚÌí¼Ó/¹ÜÀíÎÄ¼ş
+//   2. Ê¹ÓÃÍÅ¶Ó×ÊÔ´¹ÜÀíÆ÷´°¿ÚÁ¬½Óµ½Ô´´úÂë¹ÜÀí
+//   3. Ê¹ÓÃÊä³ö´°¿Ú²é¿´Éú³ÉÊä³öºÍÆäËûÏûÏ¢
+//   4. Ê¹ÓÃ´íÎóÁĞ±í´°¿Ú²é¿´´íÎó
+//   5. ×ªµ½¡°ÏîÄ¿¡±>¡°Ìí¼ÓĞÂÏî¡±ÒÔ´´½¨ĞÂµÄ´úÂëÎÄ¼ş£¬»ò×ªµ½¡°ÏîÄ¿¡±>¡°Ìí¼ÓÏÖÓĞÏî¡±ÒÔ½«ÏÖÓĞ´úÂëÎÄ¼şÌí¼Óµ½ÏîÄ¿
+//   6. ½«À´£¬ÈôÒªÔÙ´Î´ò¿ª´ËÏîÄ¿£¬Çë×ªµ½¡°ÎÄ¼ş¡±>¡°´ò¿ª¡±>¡°ÏîÄ¿¡±²¢Ñ¡Ôñ .sln ÎÄ¼ş

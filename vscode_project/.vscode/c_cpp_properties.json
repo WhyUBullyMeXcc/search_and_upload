@@ -1,0 +1,66 @@
+{
+    "configurations": [
+        {
+            "name": "Win32",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "E:\\mingw64\\include/**",
+                "E:\\mingw64\\lib\\gcc\\x86_64-w64-mingw32\\8.1.0\\include/**"
+            ],
+            "defines": [
+                "_DEBUG",
+                "UNICODE",
+                "_UNICODE"
+            ],
+            "compilerPath": "E:/mingw64/bin/gcc.exe",
+            "intelliSenseMode": "gcc-x64",
+            "cppStandard": "c++17",
+            "cStandard": "c99",
+            "windowsSdkVersion": "10.0.17763.0",
+            "compilerArgs": [],
+            "browse": {
+                "path": [
+                    "${workspaceFolder}/**",
+                    "E:\\mingw64\\include\\*",
+                    "E:\\mingw64\\lib\\gcc\\x86_64-w64-mingw32\\8.1.0\\include\\*"
+                ],
+                "limitSymbolsToIncludedHeaders": true
+            }
+        },
+        {
+            "name": "mingw64",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "E:\\mingw64\\include/**",
+                "E:\\mingw64\\lib\\gcc\\x86_64-w64-mingw32\\8.1.0\\include/**",
+                "E:\\Program Files (x86)\\Microsoft Visual Studio\\2017\\Community\\VC\\Tools\\MSVC\\14.16.27023\\include/**",
+                "E:\\Program Files (x86)\\Microsoft Visual Studio\\2017\\Community\\VC\\Tools\\MSVC\\14.16.27023\\atlmfc\\include/**",
+                "E:\\Program Files (x86)\\Microsoft Visual Studio\\2017\\Community\\VC\\Auxiliary\\VS\\include/**",
+                "E:\\Windows Kits\\10\\Include\\10.0.17763.0\\ucrt/**",
+                "E:\\Windows Kits\\10\\Include\\10.0.17763.0\\um/**",
+                "E:\\Windows Kits\\10\\Include\\10.0.17763.0\\shared/**",
+                "E:\\Windows Kits\\10\\Include\\10.0.17763.0\\winrt/**",
+                "E:\\Windows Kits\\10\\Include\\10.0.17763.0\\cppwinrt/**",
+                "C:\\Program Files (x86)\\Windows Kits\\NETFXSDK\\4.6.1\\Include\\um/**"
+            ],
+            "defines": [
+                "_DEBUG",
+                "UNICODE",
+                "_UNICODE"
+            ],
+            "compilerPath": "E:/mingw64/bin/gcc.exe",
+            "intelliSenseMode": "gcc-x86",
+            "compilerArgs": [],
+            "cStandard": "c99",
+            "cppStandard": "c++17",
+            "browse": {
+                "path": [
+                    "${workspaceFolder}/**"
+                ],
+                "limitSymbolsToIncludedHeaders": false
+            },
+            "windowsSdkVersion": "10.0.17763.0"
+        }
+    ],
+    "version": 4
+}

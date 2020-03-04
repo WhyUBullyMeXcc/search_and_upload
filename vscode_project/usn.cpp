@@ -457,6 +457,7 @@ int main()
 	HANDLE hVol;
 	USN_JOURNAL_DATA UsnInfo; // 储存USN日志的基本信息
 	watch_usn(volName, hVol, UsnInfo);
+
 	// Sleep(10000);
 	// char *dv = "d:\\";
 	// watch_usn(dv, hVol, UsnInfo);
