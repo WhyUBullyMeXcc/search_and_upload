@@ -163,8 +163,8 @@ void usn_manager::get_path_from_frn(HANDLE& volume_handle, DWORDLONG frn) {
 }
 
 void usn_manager::watch_usn(char* volName) {
-	ofstream fout("E:\\log.txt");
-    HANDLE hVol =nullptr;
+    ofstream fout("E:\\log.txt");
+    HANDLE hVol = nullptr;
     USN_JOURNAL_DATA UsnInfo; // 储存USN日志的基本信息
     BOOL status;
     BOOL isNTFS = false;
@@ -273,7 +273,7 @@ void usn_manager::watch_usn(char* volName) {
 
             //step 05. 枚举USN日志文件中的所有记录
             cout << "step 05. 枚举USN日志文件中的所有记录\n";
-            MFT_ENUM_DATA med;
+            MFT_ENUM_DATA_V0 med;
             med.StartFileReferenceNumber = 0;
             med.LowUsn = 0;
             med.HighUsn = UsnInfo.NextUsn;
@@ -281,7 +281,7 @@ void usn_manager::watch_usn(char* volName) {
             CHAR buffer[BUF_LEN]; //储存记录的缓冲,尽量足够地大 buf_len = 4096
             DWORD usnDataSize;
             PUSN_RECORD UsnRecord;
-            PUSN_RECORD *sUsnRecord = new PUSN_RECORD;
+            PUSN_RECORD* sUsnRecord = new PUSN_RECORD;
             long clock_start = clock();
 
             vector<DWORDLONG> element_node;
@@ -334,7 +334,7 @@ void usn_manager::watch_usn(char* volName) {
                 }
                 med.StartFileReferenceNumber = *(USN*)&buffer;
             }
-			cout << "error" << GetLastError();
+            cout << "error" << GetLastError();
             std::sort(element_node.begin(), element_node.end());
             tmp_vector = element_node;
             cout << "共" << counters << "个文件\n";
