@@ -39,7 +39,7 @@ class usn_manager {
         int file_type(char* patName, char* relName);
         HMODULE load_ntdll(HMODULE hmodule);
         void get_path_from_frn(HANDLE& volume_handle, DWORDLONG frn, string volpath);
-        void watch_usn(string path);
+        //void watch_usn(string path);
         void watch_usns(string path,int oper);
         usn_manager();
         ~usn_manager();

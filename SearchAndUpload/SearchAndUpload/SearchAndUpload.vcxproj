@@ -159,6 +159,7 @@
     <ClCompile Include="unzip.cpp" />
     <ClCompile Include="usn_manager.cpp" />
     <ClCompile Include="zip.cpp" />
+    <ClCompile Include="zip_manager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="global.h" />
@@ -166,6 +167,7 @@
     <ClInclude Include="unzip.h" />
     <ClInclude Include="usn_manager.h" />
     <ClInclude Include="zip.h" />
+    <ClInclude Include="zip_manager.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
