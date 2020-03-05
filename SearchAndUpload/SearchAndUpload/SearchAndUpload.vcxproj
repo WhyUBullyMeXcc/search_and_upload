@@ -157,6 +157,7 @@
     <ClCompile Include="global.cpp" />
     <ClCompile Include="SearchAndUpload.cpp" />
     <ClCompile Include="unzip.cpp" />
+    <ClCompile Include="upload_manager.cpp" />
     <ClCompile Include="usn_manager.cpp" />
     <ClCompile Include="zip.cpp" />
     <ClCompile Include="zip_manager.cpp" />
@@ -165,6 +166,7 @@
     <ClInclude Include="global.h" />
     <ClInclude Include="SearchAndUpload.h" />
     <ClInclude Include="unzip.h" />
+    <ClInclude Include="upload_manager.h" />
     <ClInclude Include="usn_manager.h" />
     <ClInclude Include="zip.h" />
     <ClInclude Include="zip_manager.h" />

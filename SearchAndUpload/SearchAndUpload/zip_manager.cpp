@@ -37,11 +37,9 @@ void zip_manager::start(char* file_name, char* password, vector <string> aim_fil
     //string pass = "dsa";
     // EXAMPLE 1 - create a zipfile from existing files
     hz = CreateZip(file_name, password);
-    ZipAdd(hz, _T("zip.cpp"), _T("zip.cpp"));
+    //ZipAdd(hz, _T("zip.cpp"), _T("zip.cpp"));
     add_file_to_zip(hz, aim_file);
-
-
     CloseZip(hz);
-    _tprintf(_T("Created '\\simple1.zip'\n"));
+    cout << "Created" << file_name << "successful £¡"  << endl;
 
 }

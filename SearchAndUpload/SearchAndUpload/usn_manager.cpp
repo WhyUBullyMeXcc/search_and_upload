@@ -179,7 +179,7 @@ void usn_manager::get_path_from_frn(HANDLE& volume_handle, DWORDLONG frn, string
 }
 
 void usn_manager::watch_usns(string path, int oper) {
-    cout << "current oper" << oper << endl;
+    //cout << "current oper" << oper << endl;
     vector<DWORDLONG> G_element_node;
     if (drives_scan_result.size() > oper)
         G_element_node = drives_scan_result.at(oper);
@@ -206,7 +206,8 @@ void usn_manager::watch_usns(string path, int oper) {
                                    MAX_PATH);
     //cout << status << endl;
     if (0 != status) {
-        cout << "file system:" << sysNameBuf << "\n";
+        //cout << "file system:" << sysNameBuf << "\n";
+
         // 比较字符串
         if (0 == strcmp(sysNameBuf, "NTFS")) {
             //cout << "此驱动盘是NTFS格式！转向step-02.\n";
@@ -224,7 +225,7 @@ void usn_manager::watch_usns(string path, int oper) {
         strcat_s(fileName, volName);
         string fileNameStr = (string)fileName;
         fileNameStr.erase(fileNameStr.find_last_of(":") + 1);
-        cout << "驱动盘地址:" << fileNameStr.data() << "\n";
+        cout << "正在扫描:" << fileNameStr.data() << "\n";
 
         hVol = CreateFileA(fileNameStr.data(), //可打开或创建以下对象，并返回可访问的句柄：控制台，通信资源，目录（只读打开），磁盘驱动器，文件
                            GENERIC_READ | GENERIC_WRITE,
@@ -382,19 +383,21 @@ void usn_manager::watch_usns(string path, int oper) {
 
 
 
-            if (diff_vce.size())
-                cout << "文件有变更 变更数为:" << diff_vce.size() << endl;
+			if (diff_vce.size())
+			{
+				cout << "文件有变更 变更数为:" << diff_vce.size() << endl;
 
 
-            cout << "差异文件 ID= {";
-            vector<DWORDLONG>::iterator pos;
-            for (pos = diff_vce.begin(); pos != diff_vce.end(); pos++) {
-                if (pos != diff_vce.begin())
-                    cout << ", ";
-                cout << *pos;
-            }
+				cout << "差异文件 ID= {";
+				vector<DWORDLONG>::iterator pos;
+				for (pos = diff_vce.begin(); pos != diff_vce.end(); pos++) {
+					if (pos != diff_vce.begin())
+						cout << ", ";
+					cout << *pos;
+				}
 
-            cout << "}" << endl;
+				cout << "}" << endl;
+			}
 
             for (int i = 0; i < diff_vce.size(); i++) {
                 cout << diff_vce.at(i) << endl;

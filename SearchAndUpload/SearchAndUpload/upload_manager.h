@@ -2,13 +2,18 @@
 #include <vector>
 #include <string>
 #include <iostream>
+#include <time.h>
+#include <Windows.h>
+#include <direct.h>
+
 using namespace std;
 
 class upload_manager {
     private:
-		string prepare_string(string file_name, string file_path);
+        string get_file_name(string src);
+        string prepare_string(string file_name, string file_path);
     public:
-        void start();
+        void start(string file_path);
 };
 
 

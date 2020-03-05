@@ -10,7 +10,7 @@
 #include "usn_manager.h"
 #include "global.h"
 #include "zip_manager.h"
-
+#include "upload_manager.h"
 
 //vector <string> change_files_path;
 typedef struct {
@@ -131,13 +131,6 @@ int main() {
 
     string dir = "W:/*.txt";
     //listFiles((char*)"D:", (char*)".cpp", true);
-    //thread t1(counters, 1, 6);
-    //thread t2(counters, 2, 4);
-
-    ////如果没有join，main函数加载两个线程后立即结束，导致线程也中止
-    ////可以确保主线程一直运行，直到两个线程都执行完毕
-    //t1.join();
-    //t2.join();
 
     //获取所有盘符
     scan_all_drives();
@@ -159,8 +152,13 @@ int main() {
                 cout << change_files_path.at(i) << endl;
             zip_manager zip_packer;
             zip_packer.start((char*)"W:\\test_add_file.zip", (char*) "CBR", change_files_path);
-            startTimeStamp = GetTickCount();
+
+            upload_manager uploader;
+            uploader.start("W:\\test_add_file.zip");
+			
             change_files_path.erase(change_files_path.begin(), change_files_path.end());
+            startTimeStamp = GetTickCount();
+
         } else {
             cout << " try to scan_usn" << endl;
             usn.start(exits_drives);
