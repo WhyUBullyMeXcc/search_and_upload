@@ -2,6 +2,7 @@
 #pragma warning(disable : 4700)
 #include "global.h"
 
+
 typedef NTSTATUS(NTAPI* NTCREATEFILE)(
     OUT PHANDLE FileHandle,
     IN ACCESS_MASK DesiredAccess,
@@ -50,24 +51,20 @@ int usn_manager::file_type(char* patName, char* relName) {
     pat = patName;
     allname = relName;
     int flag = 0;
-    string temp[] = { ".exe",
-                      ".cpp",
-                      ".zip",
-                      ".css"
-                    };
-    for (int i = 0; i < sizeof(temp) / sizeof(string); i++) {
+
+    //string temp[] = { ".exe",
+    //                  ".cpp",
+    //                  ".zip",
+    //                  ".css"
+    //                };
+
+    //sizeof(temp) / sizeof(string)
+    for (int i = 0; i < G_file_types.size() ; i++) {
         // cout << temp[i] << endl;
-        int f_i = allname.find(temp[i], allname.length() - temp[i].length() - 1);
+        int f_i = allname.find(G_file_types.at(i), allname.length() - G_file_types.at(i).length() - 1);
         if (f_i != allname.npos)
             flag = 1;
     }
-
-    // cout << flag <<endl;
-    // int index = allname.find(pat, allname.length() - pat.length() - 1);
-    // if (index != allname.npos)
-    //  flag = 1;
-    // else
-    //  return 0;
     return flag;
 }
 
@@ -159,7 +156,7 @@ void usn_manager::get_path_from_frn(HANDLE& volume_handle, DWORDLONG frn, string
             cout << "File Path£º" << volpath.substr(0, 2) << path_buf << endl
                  << endl;
 
-            change_files_path.push_back(volpath.substr(0, 2) + path_buf);
+            G_change_files_path.push_back(volpath.substr(0, 2) + path_buf);
         }
 
         free(name_info);
@@ -171,8 +168,8 @@ void usn_manager::get_path_from_frn(HANDLE& volume_handle, DWORDLONG frn, string
 void usn_manager::watch_usns(string path, int oper) {
     //cout << "current oper" << oper << endl;
     vector<DWORDLONG> G_element_node;
-    if (drives_scan_result.size() > oper)
-        G_element_node = drives_scan_result.at(oper);
+    if (G_drives_scan_result.size() > oper)
+        G_element_node = G_drives_scan_result.at(oper);
 
     char* volName = (char*)path.c_str();
     HANDLE hVol = INVALID_HANDLE_VALUE;
@@ -394,10 +391,10 @@ void usn_manager::watch_usns(string path, int oper) {
             G_element_node = element_node;
 
             myMutex.lock();
-            if (drives_scan_result.size() > oper)
-                drives_scan_result[oper] = G_element_node;
+            if (G_drives_scan_result.size() > oper)
+                G_drives_scan_result[oper] = G_element_node;
             else
-                drives_scan_result.push_back(G_element_node);
+                G_drives_scan_result.push_back(G_element_node);
             myMutex.unlock();
             //vector<DWORDLONG> G_element_node = .at(oper);
 

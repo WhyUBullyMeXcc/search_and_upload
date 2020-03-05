@@ -1,7 +1,6 @@
 #include "zip_manager.h"
 
 
-
 zip_manager::zip_manager() {
 
 }
@@ -22,8 +21,8 @@ string get_file_name(string src) {
 void zip_manager::add_file_to_zip(HZIP& hz, vector <string>  aim_file) {
 
     for (int i = 0; i < aim_file.size(); i++) {
-        cout << aim_file.at(i) << endl;
-        cout << get_file_name(aim_file.at(i)) << endl;
+        //cout << aim_file.at(i) << endl;
+        //cout << get_file_name(aim_file.at(i)) << endl;
         ZipAdd(hz, get_file_name(aim_file.at(i)).c_str(), aim_file.at(i).c_str());
     }
 }

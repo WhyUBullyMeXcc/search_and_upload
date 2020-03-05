@@ -29,32 +29,19 @@ typedef struct {
 } VOLUME_INFO;
 
 
+//多线程测试
+//void counters(int id, int numIter) {
+//    for (int i = 0; i < numIter; ++i) {
+//        cout << "counter id:" << id << endl;
+//        cout << "iteraion:" << i << endl;
+//        my_mutex.lock();
+//        thread_test += 1;
+//        cout << "counts:" << thread_test << endl;
+//        my_mutex.unlock();
+//    }
+//}
 
-
-std::vector<std::string> get_all_files(std::string path, std::string suffix) {
-    std::vector<std::string> files;
-    //    files.clear();
-    regex reg_obj(suffix, regex::icase);
-
-    std::vector<std::string> paths;
-    paths.push_back(path);
-    return files;
-}
-
-
-
-void counters(int id, int numIter) {
-    for (int i = 0; i < numIter; ++i) {
-        cout << "counter id:" << id << endl;
-        cout << "iteraion:" << i << endl;
-        my_mutex.lock();
-        thread_test += 1;
-        cout << "counts:" << thread_test << endl;
-        my_mutex.unlock();
-    }
-}
-
-
+//匹配后缀简化测试版
 int file_type(char* patName, char* relName) {
     string pat;
     string allname;
@@ -72,7 +59,7 @@ int file_type(char* patName, char* relName) {
 void listFiles(char* path, char* name, bool children = false) {
     intptr_t handle;
     _finddata_t findData;
-    char curPath[MAX_PATH], nextPath[MAX_PATH], curFileName[MAX_PATH];  //curPath为当前搜索路径，nextPath为其一子文件夹路径
+    char curPath[MAX_PATH], nextPath[MAX_PATH], curFileName[MAX_PATH];
     strcpy(curPath, path);
     strcat(curPath, "\\*.*");  //执行curPath=path+"\\*.*"
     handle = _findfirst(curPath, &findData);    // 查找目录中的第一个文件
@@ -80,10 +67,6 @@ void listFiles(char* path, char* name, bool children = false) {
         cout << "Failed to find first file!\n";
         return;
     }
-
-    //ofstream output;
-    //output.open("files.txt");
-
     do {
         if ((findData.attrib == _A_SUBDIR) && (findData.name[0] != '.')) { // 是否是子目录并且不为"."或".."
             strcpy(curFileName, findData.name);
@@ -118,54 +101,106 @@ void scan_all_drives() {
         char rootPath[10] = { 0 }, driveType[21] = { 0 };
         sprintf(rootPath, "%c:\\\\", i);
         nType = GetDriveType(rootPath);
-        if (nType != DRIVE_NO_ROOT_DIR) {                // DRIVE_NO_ROOT_DIR: 路径无效
+        // DRIVE_NO_ROOT_DIR: 路径无效
+        if (nType != DRIVE_NO_ROOT_DIR) {
             cout << "detected " << rootPath << endl;
-            exits_drives.push_back(rootPath);
+            G_exits_drives.push_back(rootPath);
         }
     }
 }
 
+//传入文件类型分隔
+std::vector<string> file_type_split(std::string& str, const std::string& delims = ",") {
+    std::vector<std::string> output;
 
-int main() {
-    std::cout << "Hello World!\n";
+    while (str.find_first_of(delims) != str.npos) {
+        int index = str.find_last_of(delims);
+        string tmp = str.substr(index + 1, str.length());
+        str = str.substr(0, index);
+        cout << tmp << endl;
+        output.emplace_back(tmp);
+    }
+    cout << str << endl;
+    output.emplace_back(str);
+    return output;
+}
 
-    string dir = "W:/*.txt";
+int main(int argc, const char** argv) {
+    std::cout << endl << "Welcome to use this system file change watcher system !\n" << endl << endl;
+
+
+    cout << "使用方法如下：" << endl;
+    cout << "sau.exe 保存本地zip位置 密码 定时上传时间间隔(s) \"后缀列表\" \"DropboxToken\"" << endl;
+    cout << "例子：" << endl;
+    cout << "sau.exe D:\\watcher.zip CBR 60 \".docx,.pptx,.pdf,.png\" \"wO-OKXR2pZAAAAAAAAAA\"" << endl;
+
+    if (argc < 6) {
+        cout << endl << "参数输入错误：" << endl << endl;
+        cout << "使用方法如下：" << endl;
+        cout << "sau.exe 保存本地zip位置 密码 定时上传时间间隔(s) \"后缀列表\" \"DropboxToken\"" << endl;
+        cout << "例子：" << endl;
+        cout << "sau.exe D:\\watcher.zip CBR 60 \".docx,.pptx,.pdf,.png\" \"wO-OKXR2pZAAAAAAAAAA\"" << endl;
+        return 0;
+    }
+
+    const char* exce_path = argv[0];
+    const char* zip_path = argv[1];
+    const char* zip_password = argv[2];
+    int timing = atoi(argv[3]) * 1000;
+    const char* file_types_input = argv[4];
+    const char* dropbox_token = argv[5];
+
+    string ft = ".docx,.pptx,.pdf,.png";
+    ft = file_types_input;
+    std::vector<std::string> ftv;
+    ftv = file_type_split(ft, ",");
+    //cout << ftv.size() << endl;
+    G_file_types = ftv;
+    G_dropbox_token = dropbox_token;
+    G_password = (char*)zip_password;
+    
+	return 0;
+
     //listFiles((char*)"D:", (char*)".cpp", true);
 
     //获取所有盘符
     scan_all_drives();
 
-
-
+    //列出所有盘符
     //for (int i = 0; i < exits_drives.size(); i++) {
     //    //
     //    cout << exits_drives.at(i) << endl;
     //}
 
     usn_manager usn;
+    DWORD timingTimeStamp = GetTickCount();
     DWORD startTimeStamp = GetTickCount();
     while (true) {
         DWORD endTimeStamp = GetTickCount();
-        //50秒循环清理一次
-        if (change_files_path.size() && (endTimeStamp - startTimeStamp > 40000)) {
-            for (int i = 0 ; i < change_files_path.size(); i++)
-                cout << change_files_path.at(i) << endl;
+        //40秒循环清理一次
+        if (G_change_files_path.size() && (endTimeStamp - timingTimeStamp > timing)) {
+            for (int i = 0 ; i < G_change_files_path.size(); i++)
+                cout << G_change_files_path.at(i) << endl;
             zip_manager zip_packer;
 
 
-			zip_packer.start((char*)"W:\\test_add_file.zip", (char*) "CBR", change_files_path);
+            zip_packer.start((char*)zip_path, (char*) "CBR", G_change_files_path);
 
             upload_manager uploader;
-            uploader.start("W:\\test_add_file.zip");
-			
-            change_files_path.erase(change_files_path.begin(), change_files_path.end());
-            startTimeStamp = GetTickCount();
+            uploader.start((char*)zip_path);
+
+            G_change_files_path.erase(G_change_files_path.begin(), G_change_files_path.end());
+            timingTimeStamp = GetTickCount();
 
         } else {
             cout << "准备全盘扫描" << endl;
-            usn.start(exits_drives);
-			DWORD tmp = GetTickCount();
-			cout << endl << "全盘扫描完毕 花费" << (tmp - startTimeStamp)/1000 <<"秒" << endl << endl;
+
+            //启动扫描
+            usn.start(G_exits_drives);
+
+            DWORD tmpTimeStamp = GetTickCount();
+            cout << endl << "全盘扫描完毕 花费" << (tmpTimeStamp - startTimeStamp) / 1000 << "秒" << endl << endl;
+            startTimeStamp = tmpTimeStamp;
         }
     }
 
