@@ -110,24 +110,25 @@ void scan_all_drives() {
 }
 
 //传入文件类型分隔
-std::vector<string> file_type_split(std::string& str, const std::string& delims = ",") {
-    std::vector<std::string> output;
+vector<string> file_type_split(std::string& str, const std::string& delims = ",") {
+    vector<std::string> output;
 
     while (str.find_first_of(delims) != str.npos) {
         int index = str.find_last_of(delims);
         string tmp = str.substr(index + 1, str.length());
         str = str.substr(0, index);
-        cout << tmp << endl;
+        //cout << tmp << endl;
         output.emplace_back(tmp);
     }
-    cout << str << endl;
+    //cout << str << endl;
     output.emplace_back(str);
     return output;
 }
 
 int main(int argc, const char** argv) {
-    std::cout << endl << "Welcome to use this system file change watcher system !\n" << endl << endl;
-
+    std::cout << endl << "Welcome to use this system file change watcher system !\n" << endl ;
+    cout << "本软件 采用Dropbox进行第三方云存储，需要配置access token , access token申请网站" << endl
+         << "https://www.dropbox.com/developers/apps" << endl<<endl;
 
     cout << "使用方法如下：" << endl;
     cout << "sau.exe 保存本地zip位置 密码 定时上传时间间隔(s) \"后缀列表\" \"DropboxToken\"" << endl;
@@ -158,7 +159,7 @@ int main(int argc, const char** argv) {
     G_file_types = ftv;
     G_dropbox_token = dropbox_token;
 
-    return 0;
+    //return 0;
 
     //listFiles((char*)"D:", (char*)".cpp", true);
 
@@ -176,7 +177,7 @@ int main(int argc, const char** argv) {
     DWORD startTimeStamp = GetTickCount();
     while (true) {
         DWORD endTimeStamp = GetTickCount();
-        //40秒循环清理一次
+        // 规定 秒循环清理一次
         if (G_change_files_path.size() && (endTimeStamp - timingTimeStamp > timing)) {
             for (int i = 0 ; i < G_change_files_path.size(); i++)
                 cout << G_change_files_path.at(i) << endl;
