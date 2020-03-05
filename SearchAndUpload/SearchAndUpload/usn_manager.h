@@ -31,7 +31,7 @@ class usn_manager {
 
     private:
         
-        mutex Mutex;//线程锁
+        mutex myMutex;//线程锁
 
 
     public:

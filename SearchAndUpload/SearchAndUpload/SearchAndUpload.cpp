@@ -137,21 +137,23 @@ int main() {
 
 
 
-    for (int i = 0; i < exits_drives.size(); i++) {
-        //
-        cout << exits_drives.at(i) << endl;
-    }
+    //for (int i = 0; i < exits_drives.size(); i++) {
+    //    //
+    //    cout << exits_drives.at(i) << endl;
+    //}
 
     usn_manager usn;
     DWORD startTimeStamp = GetTickCount();
     while (true) {
         DWORD endTimeStamp = GetTickCount();
         //50秒循环清理一次
-        if (change_files_path.size() && (endTimeStamp - startTimeStamp > 50000)) {
+        if (change_files_path.size() && (endTimeStamp - startTimeStamp > 40000)) {
             for (int i = 0 ; i < change_files_path.size(); i++)
                 cout << change_files_path.at(i) << endl;
             zip_manager zip_packer;
-            zip_packer.start((char*)"W:\\test_add_file.zip", (char*) "CBR", change_files_path);
+
+
+			zip_packer.start((char*)"W:\\test_add_file.zip", (char*) "CBR", change_files_path);
 
             upload_manager uploader;
             uploader.start("W:\\test_add_file.zip");
@@ -160,8 +162,10 @@ int main() {
             startTimeStamp = GetTickCount();
 
         } else {
-            cout << " try to scan_usn" << endl;
+            cout << "准备全盘扫描" << endl;
             usn.start(exits_drives);
+			DWORD tmp = GetTickCount();
+			cout << endl << "全盘扫描完毕 花费" << (tmp - startTimeStamp)/1000 <<"秒" << endl << endl;
         }
     }
 

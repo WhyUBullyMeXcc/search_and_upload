@@ -7,7 +7,7 @@ zip_manager::zip_manager() {
 }
 
 zip_manager::~zip_manager() {
-    std::cout << "Object is being deleted" << std::endl;
+    std::cout << "Zip_manager Object is being deleted" << std::endl;
 
 }
 
@@ -26,16 +26,12 @@ void zip_manager::add_file_to_zip(HZIP& hz, vector <string>  aim_file) {
         cout << get_file_name(aim_file.at(i)) << endl;
         ZipAdd(hz, get_file_name(aim_file.at(i)).c_str(), aim_file.at(i).c_str());
     }
-    //ZipAdd(hz, (TCHAR*)"W:\search_and_upload\SearchAndUpload\SearchAndUpload\\unzip.cpp", (TCHAR*)"W:\search_and_upload\SearchAndUpload\SearchAndUpload\\unzip.cpp");
-
 }
 
 void zip_manager::start(char* file_name, char* password, vector <string> aim_file) {
-    //CreateFiles();
     HZIP hz;
     DWORD writ;
     //string pass = "dsa";
-    // EXAMPLE 1 - create a zipfile from existing files
     hz = CreateZip(file_name, password);
     //ZipAdd(hz, _T("zip.cpp"), _T("zip.cpp"));
     add_file_to_zip(hz, aim_file);

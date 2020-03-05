@@ -31,22 +31,17 @@ long counters = 0;
 
 
 void usn_manager::start(vector <string> drives) {
-    vector <thread > tp;
+    //vector <thread > tp;
     for (int i = 0; i < drives.size(); i++) {
         thread jt(&usn_manager::watch_usns, this, drives.at(i), i);
         jt.join();
         //tp.push_back(jt);
     }
-    //Sleep(20000);
-    //  for (int i = 0; i < tp.size(); i++)
-    //if (tp.at(i).joinable())
-    //{
-    //  join();
-
+    ////Sleep(20000);
+    //for (int i = 0; i < tp.size(); i++) {
+    //    if (tp.at(i).joinable())
+    //        tp.at(i).join();
     //}
-    //char* volName = drives.at(0);
-    //// memset(volName, 0, sizeof(volName)/sizeof(char *));
-    //watch_usn(volName);
 }
 
 int usn_manager::file_type(char* patName, char* relName) {
@@ -85,9 +80,8 @@ HMODULE usn_manager::load_ntdll(HMODULE hmodule) {
     return hmodule;
 }
 
-//volume_handle为使用CreateFile获得的卷句柄
+
 void usn_manager::get_path_from_frn(HANDLE& volume_handle, DWORDLONG frn, string volpath) {
-    //Nt函数的导出
 
     HMODULE hmodule = NULL;
 
@@ -111,21 +105,19 @@ void usn_manager::get_path_from_frn(HANDLE& volume_handle, DWORDLONG frn, string
         cout << "导出NtClose函数失败" << endl
              << endl;
 
-    //各种所需变量的定义
-
-    UNICODE_STRING us_id; //UNICODE_STRING型的文件ID
+    UNICODE_STRING us_id;
     OBJECT_ATTRIBUTES oa;
     IO_STATUS_BLOCK isb;
-    LARGE_INTEGER id;          //文件ID
-    HANDLE file_handle = NULL; //frn所指示的文件的句柄
+    LARGE_INTEGER id;
+    HANDLE file_handle = NULL;
 
-    id.QuadPart = frn; //文件ID赋值为frn
+    id.QuadPart = frn;
 
-    us_id.Buffer = (WCHAR*)&id;  //建立UNICODE型的文件ID
+    us_id.Buffer = (WCHAR*)&id;
     us_id.Length = 8;
     us_id.MaximumLength = 8;
 
-    oa.ObjectName = &us_id; //赋值OBJECT_ATTRIBUTES结构体
+    oa.ObjectName = &us_id;
     oa.Length = sizeof(OBJECT_ATTRIBUTES);
     oa.RootDirectory = volume_handle;
     oa.Attributes = OBJ_CASE_INSENSITIVE;
@@ -164,18 +156,16 @@ void usn_manager::get_path_from_frn(HANDLE& volume_handle, DWORDLONG frn, string
             int path_size = (*name_info).FileNameLength;
             //宽字符转为char型
             WideCharToMultiByte(CP_OEMCP, 0, (*name_info).FileName, path_size / 2, path_buf, path_size, NULL, NULL);
-            cout << "路径："
-                 << "w:" << path_buf << endl
+            cout << "File Path：" << volpath.substr(0, 2) << path_buf << endl
                  << endl;
 
-            change_files_path.push_back(volpath.substr(0,2) + path_buf);
+            change_files_path.push_back(volpath.substr(0, 2) + path_buf);
         }
 
         free(name_info);
         NtClose(file_handle); //关闭目标文件句柄
     }
 
-    // CloseHandle(volume_handle);//关闭卷句柄
 }
 
 void usn_manager::watch_usns(string path, int oper) {
@@ -225,7 +215,7 @@ void usn_manager::watch_usns(string path, int oper) {
         strcat_s(fileName, volName);
         string fileNameStr = (string)fileName;
         fileNameStr.erase(fileNameStr.find_last_of(":") + 1);
-        cout << "正在扫描:" << fileNameStr.data() << "\n";
+        cout << "正在扫描:" << volName << "\n";
 
         hVol = CreateFileA(fileNameStr.data(), //可打开或创建以下对象，并返回可访问的句柄：控制台，通信资源，目录（只读打开），磁盘驱动器，文件
                            GENERIC_READ | GENERIC_WRITE,
@@ -362,7 +352,7 @@ void usn_manager::watch_usns(string path, int oper) {
                 med.StartFileReferenceNumber = *(USN*)&buffer;
             }
 
-            cout << "共" << counters << "个文件\n";
+            cout << "共监控" << counters << "个文件\n";
 
 
             //cout << "error" << GetLastError();
@@ -381,64 +371,34 @@ void usn_manager::watch_usns(string path, int oper) {
 
             set_symmetric_difference(G_element_node.begin(), G_element_node.end(), element_node.begin(), element_node.end(), inserter(diff_vce, diff_vce.begin())); ///取 对称差集运算
 
+            if (diff_vce.size()) {
+                cout << "文件有变更 变更数为:" << diff_vce.size() << endl;
 
 
-			if (diff_vce.size())
-			{
-				cout << "文件有变更 变更数为:" << diff_vce.size() << endl;
+                cout << "差异文件 FileReferenceNumber ID= {";
+                vector<DWORDLONG>::iterator pos;
+                for (pos = diff_vce.begin(); pos != diff_vce.end(); pos++) {
+                    if (pos != diff_vce.begin())
+                        cout << ", ";
+                    cout << *pos;
+                }
 
-
-				cout << "差异文件 ID= {";
-				vector<DWORDLONG>::iterator pos;
-				for (pos = diff_vce.begin(); pos != diff_vce.end(); pos++) {
-					if (pos != diff_vce.begin())
-						cout << ", ";
-					cout << *pos;
-				}
-
-				cout << "}" << endl;
-			}
+                cout << "}" << endl;
+            }
 
             for (int i = 0; i < diff_vce.size(); i++) {
                 cout << diff_vce.at(i) << endl;
                 get_path_from_frn(hVol, diff_vce.at(i), path);
             }
 
-            //if (gn != sn) {
-            //    cout << "文件有变更 变更数为:" << sn - gn << endl;
-            //    vector<DWORDLONG> change_file_node;
-
-            //    for (int index = 0; index < G_element_node.size(); index++) {
-            //        if (G_element_node.at(index) != tmp_vector.at(index)) {
-            //            change_file_node.push_back(tmp_vector.at(index));
-            //            tmp_vector.erase(tmp_vector.begin() + index);
-            //        }
-            //    }
-            //    while (G_element_node.size() != tmp_vector.size()) {
-
-            //        change_file_node.push_back(tmp_vector.at(tmp_vector.size() - 1));
-            //        tmp_vector.erase(tmp_vector.end() - 1);
-            //    }
-            //    cout << "num" << change_file_node.size() << endl;
-
-            //    for (int i = 0; i < change_file_node.size(); i++) {
-            //        cout << change_file_node.at(i) << endl;
-            //        get_path_from_frn(hVol, change_file_node.at(i));
-            //    }
-            //}
-
-
-
-
-
-
-
             G_element_node = element_node;
 
+            myMutex.lock();
             if (drives_scan_result.size() > oper)
                 drives_scan_result[oper] = G_element_node;
             else
                 drives_scan_result.push_back(G_element_node);
+            myMutex.unlock();
             //vector<DWORDLONG> G_element_node = .at(oper);
 
             long clock_end = clock();
@@ -480,5 +440,5 @@ usn_manager::usn_manager() {
 }
 
 usn_manager::~usn_manager() {
-	cout << "Object is being deleted" << endl;
+    cout << "Usn_manager Object is being deleted" << endl;
 }
