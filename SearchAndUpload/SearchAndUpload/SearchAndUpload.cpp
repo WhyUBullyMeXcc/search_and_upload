@@ -157,9 +157,8 @@ int main(int argc, const char** argv) {
     //cout << ftv.size() << endl;
     G_file_types = ftv;
     G_dropbox_token = dropbox_token;
-    G_password = (char*)zip_password;
-    
-	return 0;
+
+    return 0;
 
     //listFiles((char*)"D:", (char*)".cpp", true);
 
@@ -184,7 +183,7 @@ int main(int argc, const char** argv) {
             zip_manager zip_packer;
 
 
-            zip_packer.start((char*)zip_path, (char*) "CBR", G_change_files_path);
+            zip_packer.start((char*)zip_path, (char*)zip_password, G_change_files_path);
 
             upload_manager uploader;
             uploader.start((char*)zip_path);

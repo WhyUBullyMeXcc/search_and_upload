@@ -7,7 +7,6 @@
 
 using namespace std;
 
-extern char* G_password;
 extern string G_dropbox_token;
 extern vector <string> G_exits_drives;
 extern vector <string> G_file_types;

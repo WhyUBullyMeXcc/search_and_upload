@@ -1,6 +1,5 @@
 #include "global.h"
 
-char* G_password;
 string G_dropbox_token;
 vector <string> G_exits_drives;
 vector <string> G_file_types;
