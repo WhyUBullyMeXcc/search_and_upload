@@ -159,7 +159,11 @@ int main(int argc, const char** argv) {
     G_file_types = ftv;
     G_dropbox_token = dropbox_token;
 
-    //return 0;
+	//调试libcurl用，出现 Couldn't resolve host 'content.dropboxapi.com'
+	//upload_manager um;
+	//um.up();
+
+ //   return 0;
 
     //listFiles((char*)"D:", (char*)".cpp", true);
 

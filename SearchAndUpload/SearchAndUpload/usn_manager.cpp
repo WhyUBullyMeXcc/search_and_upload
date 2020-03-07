@@ -152,7 +152,13 @@ void usn_manager::get_path_from_frn(HANDLE& volume_handle, DWORDLONG frn, string
             char path_buf[260] = { 0 };
             int path_size = (*name_info).FileNameLength;
             //¿í×Ö·û×ªÎªcharÐÍ
-            WideCharToMultiByte(CP_OEMCP, 0, (*name_info).FileName, path_size / 2, path_buf, path_size, NULL, NULL);
+            //WideCharToMultiByte(CP_OEMCP, 0, (*name_info).FileName, path_size / 2, path_buf, path_size, NULL, NULL);
+            WideCharToMultiByte(1361, 0, (*name_info).FileName, path_size / 2, path_buf, path_size, NULL, NULL);
+            //path_buf = (*name_info).FileName;
+
+            wstring path_buffer;
+            path_buffer = (*name_info).FileName;
+
             cout << "File Path£º" << volpath.substr(0, 2) << path_buf << endl
                  << endl;
 

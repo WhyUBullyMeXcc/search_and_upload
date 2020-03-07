@@ -97,6 +97,7 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
+      <AdditionalDependencies>./curllib/lib/libcurldll.a;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -132,6 +133,8 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
+      <AdditionalDependencies>./curllib/lib/libcurldll.a;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>E:\curl-7.68.0-win32-mingw\curllib\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
