@@ -160,10 +160,11 @@ int main(int argc, const char** argv) {
     G_dropbox_token = dropbox_token;
 
     //调试libcurl用，出现 Couldn't resolve host 'content.dropboxapi.com'
-    upload_manager um;
-    um.up((char*)zip_path);
+	//改用 cpprestsdk 进行编译上传
+    //upload_manager um;
+    //um.up((char*)zip_path);
 
-    return 0;
+    //return 0;
 
     //listFiles((char*)"D:", (char*)".cpp", true);
 
