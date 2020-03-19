@@ -128,7 +128,7 @@ vector<string> file_type_split(std::string& str, const std::string& delims = ","
 int main(int argc, const char** argv) {
     std::cout << endl << "Welcome to use this system file change watcher system !\n" << endl ;
     cout << "本软件 采用Dropbox进行第三方云存储，需要配置access token , access token申请网站" << endl
-         << "https://www.dropbox.com/developers/apps" << endl<<endl;
+         << "https://www.dropbox.com/developers/apps" << endl << endl;
 
     cout << "使用方法如下：" << endl;
     cout << "sau.exe 保存本地zip位置 密码 定时上传时间间隔(s) \"后缀列表\" \"DropboxToken\"" << endl;
@@ -159,11 +159,11 @@ int main(int argc, const char** argv) {
     G_file_types = ftv;
     G_dropbox_token = dropbox_token;
 
-	//调试libcurl用，出现 Couldn't resolve host 'content.dropboxapi.com'
-	//upload_manager um;
-	//um.up();
+    //调试libcurl用，出现 Couldn't resolve host 'content.dropboxapi.com'
+    upload_manager um;
+    um.up((char*)zip_path);
 
- //   return 0;
+    return 0;
 
     //listFiles((char*)"D:", (char*)".cpp", true);
 
