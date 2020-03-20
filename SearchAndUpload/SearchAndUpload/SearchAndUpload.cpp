@@ -11,6 +11,7 @@
 #include "global.h"
 #include "zip_manager.h"
 #include "upload_manager.h"
+#include "MyWindowsNotify.h"
 
 //vector <string> change_files_path;
 typedef struct {
@@ -160,7 +161,7 @@ int main(int argc, const char** argv) {
     G_dropbox_token = dropbox_token;
 
     //调试libcurl用，出现 Couldn't resolve host 'content.dropboxapi.com'
-	//改用 cpprestsdk 进行编译上传
+    //改用 cpprestsdk 进行编译上传
     //upload_manager um;
     //um.up((char*)zip_path);
 
@@ -177,37 +178,68 @@ int main(int argc, const char** argv) {
     //    cout << exits_drives.at(i) << endl;
     //}
 
-    usn_manager usn;
+    MyWindowsNotify mwn;
+    mwn.start(G_exits_drives);
+
     DWORD timingTimeStamp = GetTickCount();
     DWORD startTimeStamp = GetTickCount();
+    //int timing = 20000;
     while (true) {
         DWORD endTimeStamp = GetTickCount();
         // 规定 秒循环清理一次
-        if (G_change_files_path.size() && (endTimeStamp - timingTimeStamp > timing)) {
-            for (int i = 0 ; i < G_change_files_path.size(); i++)
-                cout << G_change_files_path.at(i) << endl;
+        if (G_N_change_files_path.size() && (endTimeStamp - timingTimeStamp > timing)) {
+            cout << " 准备运行 清理" << endl;
+            for (int i = 0; i < G_N_change_files_path.size(); i++)
+                cout << G_N_change_files_path.at(i) << endl;
             zip_manager zip_packer;
 
-
-            zip_packer.start((char*)zip_path, (char*)zip_password, G_change_files_path);
+            zip_packer.start((char*)zip_path, (char*)zip_password, G_N_change_files_path);
 
             upload_manager uploader;
             uploader.start((char*)zip_path);
 
-            G_change_files_path.erase(G_change_files_path.begin(), G_change_files_path.end());
+            G_N_change_files_path.erase(G_N_change_files_path.begin(), G_N_change_files_path.end());
             timingTimeStamp = GetTickCount();
-
-        } else {
-            cout << "准备全盘扫描" << endl;
-
-            //启动扫描
-            usn.start(G_exits_drives);
-
-            DWORD tmpTimeStamp = GetTickCount();
-            cout << endl << "全盘扫描完毕 花费" << (tmpTimeStamp - startTimeStamp) / 1000 << "秒" << endl << endl;
-            startTimeStamp = tmpTimeStamp;
         }
     }
+
+
+
+    return 0;
+
+    //下面部分代码，暂时不用，先使用 Windows API 进行扫描
+
+    //usn_manager usn;
+    //DWORD timingTimeStamp = GetTickCount();
+    //DWORD startTimeStamp = GetTickCount();
+    //while (true) {
+    //    DWORD endTimeStamp = GetTickCount();
+    //    // 规定 秒循环清理一次
+    //    if (G_change_files_path.size() && (endTimeStamp - timingTimeStamp > timing)) {
+    //        for (int i = 0 ; i < G_change_files_path.size(); i++)
+    //            cout << G_change_files_path.at(i) << endl;
+    //        zip_manager zip_packer;
+
+
+    //        zip_packer.start((char*)zip_path, (char*)zip_password, G_change_files_path);
+
+    //        upload_manager uploader;
+    //        uploader.start((char*)zip_path);
+
+    //        G_change_files_path.erase(G_change_files_path.begin(), G_change_files_path.end());
+    //        timingTimeStamp = GetTickCount();
+
+    //    } else {
+    //        cout << "准备全盘扫描" << endl;
+
+    //        //启动扫描
+    //        usn.start(G_exits_drives);
+
+    //        DWORD tmpTimeStamp = GetTickCount();
+    //        cout << endl << "全盘扫描完毕 花费" << (tmpTimeStamp - startTimeStamp) / 1000 << "秒" << endl << endl;
+    //        startTimeStamp = tmpTimeStamp;
+    //    }
+    //}
 
 
 }

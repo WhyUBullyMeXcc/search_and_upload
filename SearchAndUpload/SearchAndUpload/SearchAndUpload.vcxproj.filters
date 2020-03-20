@@ -36,6 +36,9 @@
     <ClCompile Include="upload_manager.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="MyWindowsNotify.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SearchAndUpload.h">
@@ -57,6 +60,9 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="upload_manager.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="MyWindowsNotify.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

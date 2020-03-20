@@ -349,3 +349,5 @@ MigrationBackup/
 # Ionide (cross platform F# VS Code tools) working folder
 .ionide/
 SearchAndUpload/SearchAndUpload/upload_manager.cpp
+SearchAndUpload/内置Dropbox，使用WindowsAPI版本源码.zip
+SearchAndUpload/源码.zip
